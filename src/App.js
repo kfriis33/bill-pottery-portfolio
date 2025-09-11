@@ -78,11 +78,11 @@ const App = () => {
               <img src={billImg} alt="Bill Kuenne" className="artist-photo" />
             </div>
             <p>
-              William (Bill) Kuenne is a ceramacists based in San Francisco, California. 
+              William (Bill) Kuenne is a ceramacist based in San Francisco, California. 
               He throws, trims, and glazes all his pieces by hand.
             </p>
             <p>
-              If you are interested in purchasing a piece or comissioning a custom piece, please reach out via instagram <a href="https://www.instagram.com/w.k.clay" target="_blank" rel="noopener noreferrer">@w.k.clay</a>.
+              If you are interested in purchasing a piece or comissioning a custom piece, please reach out via direct message on Instagram <a href="https://www.instagram.com/w.k.clay" target="_blank" rel="noopener noreferrer">@w.k.clay</a>.
             </p>
           </div>
         </div>

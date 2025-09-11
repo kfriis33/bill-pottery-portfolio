@@ -47,5 +47,17 @@
         <div class="loading">Loading pottery collection...</div>
     </div>
     <script type="module" src="src/index.js"></script>
+    <script>
+        // Debug script to check if basic JS works
+        console.log('HTML loaded, checking for React app...');
+        setTimeout(() => {
+            const root = document.getElementById('root');
+            if (root && root.innerHTML.includes('Loading pottery collection')) {
+                console.log('React app did not load - still showing loading message');
+            } else {
+                console.log('React app loaded successfully');
+            }
+        }, 3000);
+    </script>
 </body>
 </html>
