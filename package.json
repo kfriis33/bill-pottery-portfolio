@@ -2,7 +2,7 @@
   "name": "pottery-portfolio",
   "version": "1.0.0",
   "description": "A simple pottery portfolio website",
-  "homepage": "https://kfriis33.github.io/bill-pottery-portfolio/",
+  "homepage": "https://williamkuenne.art",
   "scripts": {
     "dev": "parcel index.html",
     "build": "parcel build index.html --public-url ./ --no-source-maps",
