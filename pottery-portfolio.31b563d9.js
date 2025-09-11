@@ -25046,7 +25046,7 @@ const App = ()=>{
                         columnNumber: 13
                     }, undefined),
                     /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("p", {
-                        children: "William (Bill) Kuenne is a ceramacists based in San Francisco, California. He throws, trims, and glazes all his pieces by hand."
+                        children: "William (Bill) Kuenne is a ceramacist based in San Francisco, California. He throws, trims, and glazes all his pieces by hand."
                     }, void 0, false, {
                         fileName: "src/App.js",
                         lineNumber: 80,
@@ -25054,7 +25054,7 @@ const App = ()=>{
                     }, undefined),
                     /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("p", {
                         children: [
-                            "If you are interested in purchasing a piece or comissioning a custom piece, please reach out via instagram ",
+                            "If you are interested in purchasing a piece or comissioning a custom piece, please reach out via direct message on Instagram ",
                             /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("a", {
                                 href: "https://www.instagram.com/w.k.clay",
                                 target: "_blank",
@@ -25063,7 +25063,7 @@ const App = ()=>{
                             }, void 0, false, {
                                 fileName: "src/App.js",
                                 lineNumber: 85,
-                                columnNumber: 122
+                                columnNumber: 140
                             }, undefined),
                             "."
                         ]
@@ -25306,10 +25306,22 @@ var _moonJar2Jpeg = require("url:./images/moon-jar-2.jpeg");
 var _moonJar2JpegDefault = parcelHelpers.interopDefault(_moonJar2Jpeg);
 var _oceanMoonJarJpeg = require("url:./images/ocean-moon-jar.jpeg");
 var _oceanMoonJarJpegDefault = parcelHelpers.interopDefault(_oceanMoonJarJpeg);
+var _kerkumblyPitcher1Jpeg = require("url:./images/kerkumbly-pitcher-1.jpeg");
+var _kerkumblyPitcher1JpegDefault = parcelHelpers.interopDefault(_kerkumblyPitcher1Jpeg);
+var _kerkumblyPitcher2Jpeg = require("url:./images/kerkumbly-pitcher-2.jpeg");
+var _kerkumblyPitcher2JpegDefault = parcelHelpers.interopDefault(_kerkumblyPitcher2Jpeg);
+var _firstLayeredVase1Jpeg = require("url:./images/first-layered-vase-1.jpeg");
+var _firstLayeredVase1JpegDefault = parcelHelpers.interopDefault(_firstLayeredVase1Jpeg);
+var _mintyVaseJpeg = require("url:./images/minty-vase.jpeg");
+var _mintyVaseJpegDefault = parcelHelpers.interopDefault(_mintyVaseJpeg);
+var _smallBowlSet1Jpeg = require("url:./images/small-bowl-set-1.jpeg");
+var _smallBowlSet1JpegDefault = parcelHelpers.interopDefault(_smallBowlSet1Jpeg);
+var _smallBowlSet2Jpeg = require("url:./images/small-bowl-set-2.jpeg");
+var _smallBowlSet2JpegDefault = parcelHelpers.interopDefault(_smallBowlSet2Jpeg);
 const potteryPieces = [
     {
         id: 1,
-        title: "Untitled",
+        title: "Jade Vase #1",
         images: [
             (0, _jadeRedWide1JpegDefault.default),
             (0, _jadeRedWide2JpegDefault.default)
@@ -25342,7 +25354,7 @@ const potteryPieces = [
         ],
         shape: "Pitcher",
         clay: "Mixed",
-        seasonYear: "Spring 2024"
+        seasonYear: "Spring 2023"
     },
     {
         id: 5,
@@ -25357,14 +25369,14 @@ const potteryPieces = [
     },
     {
         id: 6,
-        title: "Untitled",
+        title: "Jade Vase #2",
         images: [
             (0, _jadeRedNarrow2JpgDefault.default),
             (0, _jadeRedNarrowJpegDefault.default)
         ],
         shape: "Vase",
         clay: "Red Velvet",
-        seasonYear: "Winter 2025"
+        seasonYear: "Spring 2025"
     },
     {
         id: 7,
@@ -25384,6 +25396,44 @@ const potteryPieces = [
         shape: "Moon Jar",
         clay: "B-Mix",
         seasonYear: "Summer 2025"
+    },
+    {
+        id: 9,
+        title: "Kerkumbly Pitcher",
+        images: [
+            (0, _kerkumblyPitcher1JpegDefault.default),
+            (0, _kerkumblyPitcher2JpegDefault.default)
+        ],
+        shape: "Pitcher",
+        clay: "B-Mix",
+        seasonYear: "Spring 2025"
+    },
+    {
+        id: 10,
+        title: "Layered Vase #1",
+        image: (0, _firstLayeredVase1JpegDefault.default),
+        shape: "Vase",
+        clay: "Porcelain",
+        seasonYear: "Winter 2025"
+    },
+    {
+        id: 11,
+        title: "Minty Vase",
+        image: (0, _mintyVaseJpegDefault.default),
+        shape: "Vase",
+        clay: "Porcelain",
+        seasonYear: "Spring 2025"
+    },
+    {
+        id: 12,
+        title: "Small Bowl Set",
+        images: [
+            (0, _smallBowlSet1JpegDefault.default),
+            (0, _smallBowlSet2JpegDefault.default)
+        ],
+        shape: "Bowl",
+        clay: "B3",
+        seasonYear: "Summer 2024"
     }
 ];
 const getUniqueValues = (key)=>{
@@ -25392,7 +25442,7 @@ const getUniqueValues = (key)=>{
     ].sort();
 };
 
-},{"url:./images/many-hands.jpg":"veRsN","url:./images/fish-strainer.jpg":"13ERS","url:./images/three-pitchers.jpg":"4MOwD","url:./images/face-lamp-1.jpeg":"4cAIo","url:./images/face-lamp-2.jpeg":"jAEIi","url:./images/jade-red-narrow.jpeg":"fg4Am","url:./images/jade-red-narrow-2.jpg":"gHzWN","url:./images/jade-red-wide-1.jpeg":"dH1LT","url:./images/jade-red-wide-2.jpeg":"du8MS","@parcel/transformer-js/src/esmodule-helpers.js":"jnFvT","url:./images/moon-jar-1.jpeg":"awA2e","url:./images/moon-jar-2.jpeg":"bbPTs","url:./images/ocean-moon-jar.jpeg":"hsYWR"}],"veRsN":[function(require,module,exports,__globalThis) {
+},{"url:./images/many-hands.jpg":"veRsN","url:./images/fish-strainer.jpg":"13ERS","url:./images/three-pitchers.jpg":"4MOwD","url:./images/face-lamp-1.jpeg":"4cAIo","url:./images/face-lamp-2.jpeg":"jAEIi","url:./images/jade-red-narrow.jpeg":"fg4Am","url:./images/jade-red-narrow-2.jpg":"gHzWN","url:./images/jade-red-wide-1.jpeg":"dH1LT","url:./images/jade-red-wide-2.jpeg":"du8MS","@parcel/transformer-js/src/esmodule-helpers.js":"jnFvT","url:./images/moon-jar-1.jpeg":"awA2e","url:./images/moon-jar-2.jpeg":"bbPTs","url:./images/ocean-moon-jar.jpeg":"hsYWR","url:./images/kerkumbly-pitcher-1.jpeg":"hPb3r","url:./images/kerkumbly-pitcher-2.jpeg":"2EDgd","url:./images/minty-vase.jpeg":"9hJxh","url:./images/small-bowl-set-1.jpeg":"fRuQq","url:./images/small-bowl-set-2.jpeg":"1vLF1","url:./images/first-layered-vase-1.jpeg":"finDB"}],"veRsN":[function(require,module,exports,__globalThis) {
 module.exports = module.bundle.resolve("many-hands.adda8537.jpg") + "?" + Date.now();
 
 },{}],"13ERS":[function(require,module,exports,__globalThis) {
@@ -25457,6 +25507,24 @@ module.exports = module.bundle.resolve("moon-jar-2.7ebe3e11.jpeg") + "?" + Date.
 
 },{}],"hsYWR":[function(require,module,exports,__globalThis) {
 module.exports = module.bundle.resolve("ocean-moon-jar.55839fac.jpeg") + "?" + Date.now();
+
+},{}],"hPb3r":[function(require,module,exports,__globalThis) {
+module.exports = module.bundle.resolve("kerkumbly-pitcher-1.a1c92c1e.jpeg") + "?" + Date.now();
+
+},{}],"2EDgd":[function(require,module,exports,__globalThis) {
+module.exports = module.bundle.resolve("kerkumbly-pitcher-2.bb50547c.jpeg") + "?" + Date.now();
+
+},{}],"9hJxh":[function(require,module,exports,__globalThis) {
+module.exports = module.bundle.resolve("minty-vase.109bbc61.jpeg") + "?" + Date.now();
+
+},{}],"fRuQq":[function(require,module,exports,__globalThis) {
+module.exports = module.bundle.resolve("small-bowl-set-1.c70a481e.jpeg") + "?" + Date.now();
+
+},{}],"1vLF1":[function(require,module,exports,__globalThis) {
+module.exports = module.bundle.resolve("small-bowl-set-2.d80f2223.jpeg") + "?" + Date.now();
+
+},{}],"finDB":[function(require,module,exports,__globalThis) {
+module.exports = module.bundle.resolve("first-layered-vase-1.2e242b87.jpeg") + "?" + Date.now();
 
 },{}],"9naod":[function(require,module,exports,__globalThis) {
 var $parcel$ReactRefreshHelpers$7981 = require("@parcel/transformer-react-refresh-wrap/lib/helpers/helpers.js");
