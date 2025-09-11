@@ -1,8 +1,7 @@
 {
-  "name": "pottery-portfolio",
+  "name": "william-kuenne-ceramics",
   "version": "1.0.0",
-  "description": "A simple pottery portfolio website",
-  "homepage": "https://williamkuenne.art",
+  "description": "William Kuenne Ceramics Portfolio",
   "scripts": {
     "dev": "parcel index.html",
     "build": "parcel build index.html --public-url ./ --no-source-maps",
