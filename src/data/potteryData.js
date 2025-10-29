@@ -13,10 +13,27 @@ import moonJar2Img from "url:./images/moon-jar-2.jpeg";
 import oceanMoonJarImg from "url:./images/ocean-moon-jar.jpeg";
 import kerkumblyPitcher1Img from "url:./images/kerkumbly-pitcher-1.jpeg";
 import kerkumblyPitcher2Img from "url:./images/kerkumbly-pitcher-2.jpeg";
-import layeredVase1Img from "url:./images/first-layered-vase-1.jpeg";
+import firstLayeredVase1Img from "url:./images/first-layered-vase-1.jpeg";
 import mintyVaseImg from "url:./images/minty-vase.jpeg";
 import smallBowlSet1Img from "url:./images/small-bowl-set-1.jpeg";
 import smallBowlSet2Img from "url:./images/small-bowl-set-2.jpeg";
+import cowVase1Img from "url:./images/cow-vase-1.jpeg";
+import cowVase2Img from "url:./images/cow-vase-2.jpeg";
+import cowVase3Img from "url:./images/cow-vase-3.jpeg";
+import cowVase4Img from "url:./images/cow-vase-4.jpeg";
+import cowVase5Img from "url:./images/cow-vase-5.jpeg";
+import candleHolder1Img from "url:./images/candle-holder-1.jpeg";
+import candleHolder2Img from "url:./images/candle-holder-2.jpeg";
+import plateCup1Img from "url:./images/plate-cup-1.jpeg";
+import plateCup2Img from "url:./images/plate-cup-2.jpeg";
+import secondLayeredVase1Img from "url:./images/second-layered-vase-1.jpeg";
+import secondLayeredVase2Img from "url:./images/second-layered-vase-2.jpeg";
+import secondLayeredVase3Img from "url:./images/second-layered-vase-3.jpeg";
+import planter1Img from "url:./images/planter-1.jpeg";
+import planter2Img from "url:./images/planter-2.jpeg";
+import planter3Img from "url:./images/planter-3.jpeg";
+import firstLayeredVase2Img from "url:./images/first-layered-vase-2.jpeg";
+import firstLayeredVase3Img from "url:./images/first-layered-vase-3.jpeg";
 
 // Pottery data with local images
 export const potteryPieces = [
@@ -95,7 +112,7 @@ export const potteryPieces = [
   {
     id: 10,
     title: "Layered Vase #1",
-    image: layeredVase1Img,
+    image: [firstLayeredVase1Img, firstLayeredVase2Img, firstLayeredVase3Img],
     shape: "Vase",
     clay: "Porcelain",
     seasonYear: "Winter 2025"
@@ -115,7 +132,47 @@ export const potteryPieces = [
     shape: "Bowl",
     clay: "B3",
     seasonYear: "Summer 2024"
-  }
+  },
+  {
+    id: 13,
+    title: "Moo-n Jar",
+    images: [cowVase1Img, cowVase2Img, cowVase3Img, cowVase4Img, cowVase5Img],
+    shape: "Vase",
+    clay: "Porcelain",
+    seasonYear: "Fall 2025"
+  },
+  {
+    id: 14,
+    title: "Candle Lantern",
+    images: [candleHolder1Img, candleHolder2Img],
+    shape: "Other",
+    clay: "Porcelain",
+    seasonYear: "Fall 2025"
+  },
+  {
+    id: 15,
+    title: "Plate & Cup Set",
+    images: [plateCup1Img, plateCup2Img],
+    shape: "Tableware",
+    clay: "Porcelain",
+    seasonYear: "Summer 2025"
+  },
+  {
+    id: 16,
+    title: "Layered Vase #2",
+    images: [secondLayeredVase1Img, secondLayeredVase2Img, secondLayeredVase3Img],
+    shape: "Vase",
+    clay: "Porcelain",
+    seasonYear: "Spring 2025"
+  },
+  {
+    id: 17,
+    title: "Watermelon Planter",
+    images: [planter1Img, planter2Img, planter3Img],
+    shape: "Planter",
+    clay: "Porcelain",
+    seasonYear: "Summer 2025"
+  },
 ];
 
 // Extract unique values for filters

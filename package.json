@@ -1,7 +1,7 @@
 {
   "name": "william-kuenne-ceramics",
   "version": "1.0.0",
-  "description": "William Kuenne Ceramics Portfolio",
+  "description": "William Kuenne Ceramics",
   "scripts": {
     "dev": "parcel index.html",
     "build": "parcel build index.html --public-url ./ --no-source-maps",
