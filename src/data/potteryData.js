@@ -112,7 +112,7 @@ export const potteryPieces = [
   {
     id: 10,
     title: "Layered Vase #1",
-    image: [firstLayeredVase1Img, firstLayeredVase2Img, firstLayeredVase3Img],
+    images: [firstLayeredVase1Img, firstLayeredVase2Img, firstLayeredVase3Img],
     shape: "Vase",
     clay: "Porcelain",
     seasonYear: "Winter 2025"
