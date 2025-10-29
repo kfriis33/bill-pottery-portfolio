@@ -25445,7 +25445,7 @@ const potteryPieces = [
     {
         id: 10,
         title: "Layered Vase #1",
-        image: [
+        images: [
             (0, _firstLayeredVase1JpegDefault.default),
             (0, _firstLayeredVase2JpegDefault.default),
             (0, _firstLayeredVase3JpegDefault.default)
