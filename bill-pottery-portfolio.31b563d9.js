@@ -94,7 +94,54 @@
 
     function localRequire(x) {
       var res = localRequire.resolve(x);
-      return res === false ? {} : newRequire(res);
+      if (res === false) {
+        return {};
+      }
+      // Synthesize a module to follow re-exports.
+      if (Array.isArray(res)) {
+        var m = {__esModule: true};
+        res.forEach(function (v) {
+          var key = v[0];
+          var id = v[1];
+          var exp = v[2] || v[0];
+          var x = newRequire(id);
+          if (key === '*') {
+            Object.keys(x).forEach(function (key) {
+              if (
+                key === 'default' ||
+                key === '__esModule' ||
+                Object.prototype.hasOwnProperty.call(m, key)
+              ) {
+                return;
+              }
+
+              Object.defineProperty(m, key, {
+                enumerable: true,
+                get: function () {
+                  return x[key];
+                },
+              });
+            });
+          } else if (exp === '*') {
+            Object.defineProperty(m, key, {
+              enumerable: true,
+              value: x,
+            });
+          } else {
+            Object.defineProperty(m, key, {
+              enumerable: true,
+              get: function () {
+                if (exp === 'default') {
+                  return x.__esModule ? x.default : x;
+                }
+                return x[exp];
+              },
+            });
+          }
+        });
+        return m;
+      }
+      return newRequire(res);
     }
 
     function resolve(x) {
@@ -25352,6 +25399,10 @@ var _firstLayeredVase2Jpeg = require("url:./images/first-layered-vase-2.jpeg");
 var _firstLayeredVase2JpegDefault = parcelHelpers.interopDefault(_firstLayeredVase2Jpeg);
 var _firstLayeredVase3Jpeg = require("url:./images/first-layered-vase-3.jpeg");
 var _firstLayeredVase3JpegDefault = parcelHelpers.interopDefault(_firstLayeredVase3Jpeg);
+var _penwingPitcher1Jpeg = require("url:./images/penwing-pitcher-1.jpeg");
+var _penwingPitcher1JpegDefault = parcelHelpers.interopDefault(_penwingPitcher1Jpeg);
+var _penwingPitcher2Jpeg = require("url:./images/penwing-pitcher-2.jpeg");
+var _penwingPitcher2JpegDefault = parcelHelpers.interopDefault(_penwingPitcher2Jpeg);
 const potteryPieces = [
     {
         id: 1,
@@ -25532,6 +25583,17 @@ const potteryPieces = [
         shape: "Planter",
         clay: "Porcelain",
         seasonYear: "Summer 2025"
+    },
+    {
+        id: 18,
+        title: "Penwing Pitcher",
+        images: [
+            (0, _penwingPitcher1JpegDefault.default),
+            (0, _penwingPitcher2JpegDefault.default)
+        ],
+        shape: "Pitcher",
+        clay: "Porcelain",
+        seasonYear: "Fall 2025"
     }
 ];
 const getUniqueValues = (key)=>{
@@ -25540,7 +25602,7 @@ const getUniqueValues = (key)=>{
     ].sort();
 };
 
-},{"url:./images/many-hands.jpg":"veRsN","url:./images/fish-strainer.jpg":"13ERS","url:./images/three-pitchers.jpg":"4MOwD","url:./images/face-lamp-1.jpeg":"4cAIo","url:./images/face-lamp-2.jpeg":"jAEIi","url:./images/jade-red-narrow.jpeg":"fg4Am","url:./images/jade-red-narrow-2.jpg":"gHzWN","url:./images/jade-red-wide-1.jpeg":"dH1LT","url:./images/jade-red-wide-2.jpeg":"du8MS","url:./images/moon-jar-1.jpeg":"awA2e","url:./images/moon-jar-2.jpeg":"bbPTs","url:./images/ocean-moon-jar.jpeg":"hsYWR","url:./images/kerkumbly-pitcher-1.jpeg":"hPb3r","url:./images/kerkumbly-pitcher-2.jpeg":"2EDgd","url:./images/first-layered-vase-1.jpeg":"finDB","url:./images/minty-vase.jpeg":"9hJxh","url:./images/small-bowl-set-1.jpeg":"fRuQq","url:./images/small-bowl-set-2.jpeg":"1vLF1","url:./images/cow-vase-1.jpeg":"j9ntc","url:./images/cow-vase-2.jpeg":"NeexJ","url:./images/cow-vase-3.jpeg":"6rL4L","url:./images/cow-vase-4.jpeg":"liHMh","url:./images/cow-vase-5.jpeg":"2A4do","url:./images/candle-holder-1.jpeg":"4CimX","url:./images/candle-holder-2.jpeg":"hUYQb","url:./images/plate-cup-1.jpeg":"ihdS8","url:./images/plate-cup-2.jpeg":"em9e8","url:./images/second-layered-vase-1.jpeg":"8sRi4","url:./images/second-layered-vase-2.jpeg":"gXai8","url:./images/second-layered-vase-3.jpeg":"jpCAN","url:./images/planter-1.jpeg":"9FBlo","url:./images/planter-2.jpeg":"1tiXD","url:./images/planter-3.jpeg":"8c8Jf","url:./images/first-layered-vase-2.jpeg":"3S5Ie","url:./images/first-layered-vase-3.jpeg":"aRJGN","@parcel/transformer-js/src/esmodule-helpers.js":"jnFvT"}],"veRsN":[function(require,module,exports,__globalThis) {
+},{"url:./images/many-hands.jpg":"veRsN","url:./images/fish-strainer.jpg":"13ERS","url:./images/three-pitchers.jpg":"4MOwD","url:./images/face-lamp-1.jpeg":"4cAIo","url:./images/face-lamp-2.jpeg":"jAEIi","url:./images/jade-red-narrow.jpeg":"fg4Am","url:./images/jade-red-narrow-2.jpg":"gHzWN","url:./images/jade-red-wide-1.jpeg":"dH1LT","url:./images/jade-red-wide-2.jpeg":"du8MS","url:./images/moon-jar-1.jpeg":"awA2e","url:./images/moon-jar-2.jpeg":"bbPTs","url:./images/ocean-moon-jar.jpeg":"hsYWR","url:./images/kerkumbly-pitcher-1.jpeg":"hPb3r","url:./images/kerkumbly-pitcher-2.jpeg":"2EDgd","url:./images/first-layered-vase-1.jpeg":"finDB","url:./images/minty-vase.jpeg":"9hJxh","url:./images/small-bowl-set-1.jpeg":"fRuQq","url:./images/small-bowl-set-2.jpeg":"1vLF1","url:./images/cow-vase-1.jpeg":"j9ntc","url:./images/cow-vase-2.jpeg":"NeexJ","url:./images/cow-vase-3.jpeg":"6rL4L","url:./images/cow-vase-4.jpeg":"liHMh","url:./images/cow-vase-5.jpeg":"2A4do","url:./images/candle-holder-1.jpeg":"4CimX","url:./images/candle-holder-2.jpeg":"hUYQb","url:./images/plate-cup-1.jpeg":"ihdS8","url:./images/plate-cup-2.jpeg":"em9e8","url:./images/second-layered-vase-1.jpeg":"8sRi4","url:./images/second-layered-vase-2.jpeg":"gXai8","url:./images/second-layered-vase-3.jpeg":"jpCAN","url:./images/planter-1.jpeg":"9FBlo","url:./images/planter-2.jpeg":"1tiXD","url:./images/planter-3.jpeg":"8c8Jf","url:./images/first-layered-vase-2.jpeg":"3S5Ie","url:./images/first-layered-vase-3.jpeg":"aRJGN","url:./images/penwing-pitcher-1.jpeg":"i7C73","url:./images/penwing-pitcher-2.jpeg":"6Hxud","@parcel/transformer-js/src/esmodule-helpers.js":"jnFvT"}],"veRsN":[function(require,module,exports,__globalThis) {
 module.exports = module.bundle.resolve("many-hands.adda8537.jpg") + "?" + Date.now();
 
 },{}],"13ERS":[function(require,module,exports,__globalThis) {
@@ -25644,6 +25706,12 @@ module.exports = module.bundle.resolve("first-layered-vase-2.d48345b1.jpeg") + "
 
 },{}],"aRJGN":[function(require,module,exports,__globalThis) {
 module.exports = module.bundle.resolve("first-layered-vase-3.9cd73d1e.jpeg") + "?" + Date.now();
+
+},{}],"i7C73":[function(require,module,exports,__globalThis) {
+module.exports = module.bundle.resolve("penwing-pitcher-1.8e64127d.jpeg") + "?" + Date.now();
+
+},{}],"6Hxud":[function(require,module,exports,__globalThis) {
+module.exports = module.bundle.resolve("penwing-pitcher-2.a1bbf411.jpeg") + "?" + Date.now();
 
 },{}],"jnFvT":[function(require,module,exports,__globalThis) {
 exports.interopDefault = function(a) {
@@ -28563,4 +28631,4 @@ module.exports = module.bundle.resolve("bill.0f70e42a.jpg") + "?" + Date.now();
 
 },{}],"goyoj":[function() {},{}]},["5j6Kf","a0t4e"], "a0t4e", "parcelRequiref750", {}, "./", "/", "http://localhost:1234")
 
-//# sourceMappingURL=pottery-portfolio.31b563d9.js.map
+//# sourceMappingURL=bill-pottery-portfolio.31b563d9.js.map
