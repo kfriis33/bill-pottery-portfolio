@@ -34,6 +34,10 @@ import planter2Img from "url:./images/planter-2.jpeg";
 import planter3Img from "url:./images/planter-3.jpeg";
 import firstLayeredVase2Img from "url:./images/first-layered-vase-2.jpeg";
 import firstLayeredVase3Img from "url:./images/first-layered-vase-3.jpeg";
+import penwingPitcher1Img from "url:./images/penwing-pitcher-1.jpeg";
+import penwingPitcher2Img from "url:./images/penwing-pitcher-2.jpeg";
+
+
 
 // Pottery data with local images
 export const potteryPieces = [
@@ -172,6 +176,14 @@ export const potteryPieces = [
     shape: "Planter",
     clay: "Porcelain",
     seasonYear: "Summer 2025"
+  },
+  {
+  id: 18,
+  title: "Penwing Pitcher",
+  images: [penwingPitcher1Img, penwingPitcher2Img],
+  shape: "Pitcher",
+  clay: "Porcelain",
+  seasonYear: "Fall 2025"
   },
 ];
 
