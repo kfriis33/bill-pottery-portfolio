@@ -412,7 +412,8 @@ body {
 }
 
 .modal-image-section {
-  background: #f8f9fa;
+  background: #fff;
+  flex-direction: column;
   flex: 2;
   align-items: center;
   display: flex;
@@ -507,12 +508,13 @@ body {
 }
 
 .modal-title {
-  color: #000;
-  letter-spacing: .01em;
+  color: #1a1a1a;
+  letter-spacing: .02em;
   margin: 0;
-  font-family: Crimson Text, Georgia, serif;
+  font-family: Fredoka, cursive;
   font-size: 2rem;
-  font-weight: 600;
+  font-weight: 500;
+  line-height: 1.4;
 }
 
 .modal-metadata {
@@ -532,23 +534,27 @@ body {
 .modal-metadata-item .label {
   color: #666;
   text-transform: uppercase;
-  letter-spacing: .02em;
-  font-size: .9rem;
+  letter-spacing: .05em;
+  font-family: Quicksand, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;
+  font-size: .85rem;
   font-weight: 600;
 }
 
 .modal-metadata-item .value {
   color: #333;
+  font-family: Quicksand, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;
   font-size: 1rem;
+  font-weight: 500;
 }
 
 .modal-image-counter {
-  color: #999;
+  color: #666;
   text-align: center;
-  border-top: 1px solid #f0f0f0;
-  margin-top: auto;
-  padding-top: 1rem;
-  font-size: .9rem;
+  width: 100%;
+  padding: 1rem 0;
+  font-family: Quicksand, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;
+  font-size: .875rem;
+  font-weight: 500;
 }
 
 .card-content {
@@ -757,4 +763,4 @@ body {
     padding: 2rem 1.5rem;
   }
 }
-/*# sourceMappingURL=bill-pottery-portfolio.aa436662.css.map */
+/*# sourceMappingURL=pottery-portfolio.aa436662.css.map */

@@ -94,54 +94,7 @@
 
     function localRequire(x) {
       var res = localRequire.resolve(x);
-      if (res === false) {
-        return {};
-      }
-      // Synthesize a module to follow re-exports.
-      if (Array.isArray(res)) {
-        var m = {__esModule: true};
-        res.forEach(function (v) {
-          var key = v[0];
-          var id = v[1];
-          var exp = v[2] || v[0];
-          var x = newRequire(id);
-          if (key === '*') {
-            Object.keys(x).forEach(function (key) {
-              if (
-                key === 'default' ||
-                key === '__esModule' ||
-                Object.prototype.hasOwnProperty.call(m, key)
-              ) {
-                return;
-              }
-
-              Object.defineProperty(m, key, {
-                enumerable: true,
-                get: function () {
-                  return x[key];
-                },
-              });
-            });
-          } else if (exp === '*') {
-            Object.defineProperty(m, key, {
-              enumerable: true,
-              value: x,
-            });
-          } else {
-            Object.defineProperty(m, key, {
-              enumerable: true,
-              get: function () {
-                if (exp === 'default') {
-                  return x.__esModule ? x.default : x;
-                }
-                return x[exp];
-              },
-            });
-          }
-        });
-        return m;
-      }
-      return newRequire(res);
+      return res === false ? {} : newRequire(res);
     }
 
     function resolve(x) {
@@ -25437,7 +25390,7 @@ const potteryPieces = [
         images: [
             (0, _threePitchersJpgDefault.default)
         ],
-        shape: "Pitcher",
+        shape: "Tableware",
         clay: "Mixed",
         seasonYear: "Spring 2023"
     },
@@ -25448,7 +25401,7 @@ const potteryPieces = [
             (0, _faceLamp2JpegDefault.default),
             (0, _faceLamp1JpegDefault.default)
         ],
-        shape: "Lamp",
+        shape: "Vase",
         clay: "Porcelain",
         seasonYear: "Summer 2024"
     },
@@ -25470,15 +25423,15 @@ const potteryPieces = [
             (0, _moonJar1JpegDefault.default),
             (0, _moonJar2JpegDefault.default)
         ],
-        shape: "Moon Jar",
+        shape: "Vase",
         clay: "Porcelain",
         seasonYear: "Summer 2025"
     },
     {
         id: 8,
-        title: "Ocean Moon Jar",
+        title: "Moon Tides Jar",
         image: (0, _oceanMoonJarJpegDefault.default),
-        shape: "Moon Jar",
+        shape: "Vase",
         clay: "B-Mix",
         seasonYear: "Summer 2025"
     },
@@ -25489,7 +25442,7 @@ const potteryPieces = [
             (0, _kerkumblyPitcher1JpegDefault.default),
             (0, _kerkumblyPitcher2JpegDefault.default)
         ],
-        shape: "Pitcher",
+        shape: "Tableware",
         clay: "B-Mix",
         seasonYear: "Spring 2025"
     },
@@ -25520,7 +25473,7 @@ const potteryPieces = [
             (0, _smallBowlSet1JpegDefault.default),
             (0, _smallBowlSet2JpegDefault.default)
         ],
-        shape: "Bowl",
+        shape: "Tableware",
         clay: "B3",
         seasonYear: "Summer 2024"
     },
@@ -25580,7 +25533,7 @@ const potteryPieces = [
             (0, _planter2JpegDefault.default),
             (0, _planter3JpegDefault.default)
         ],
-        shape: "Planter",
+        shape: "Other",
         clay: "Porcelain",
         seasonYear: "Summer 2025"
     },
@@ -25602,7 +25555,7 @@ const getUniqueValues = (key)=>{
     ].sort();
 };
 
-},{"url:./images/many-hands.jpg":"veRsN","url:./images/fish-strainer.jpg":"13ERS","url:./images/three-pitchers.jpg":"4MOwD","url:./images/face-lamp-1.jpeg":"4cAIo","url:./images/face-lamp-2.jpeg":"jAEIi","url:./images/jade-red-narrow.jpeg":"fg4Am","url:./images/jade-red-narrow-2.jpg":"gHzWN","url:./images/jade-red-wide-1.jpeg":"dH1LT","url:./images/jade-red-wide-2.jpeg":"du8MS","url:./images/moon-jar-1.jpeg":"awA2e","url:./images/moon-jar-2.jpeg":"bbPTs","url:./images/ocean-moon-jar.jpeg":"hsYWR","url:./images/kerkumbly-pitcher-1.jpeg":"hPb3r","url:./images/kerkumbly-pitcher-2.jpeg":"2EDgd","url:./images/first-layered-vase-1.jpeg":"finDB","url:./images/minty-vase.jpeg":"9hJxh","url:./images/small-bowl-set-1.jpeg":"fRuQq","url:./images/small-bowl-set-2.jpeg":"1vLF1","url:./images/cow-vase-1.jpeg":"j9ntc","url:./images/cow-vase-2.jpeg":"NeexJ","url:./images/cow-vase-3.jpeg":"6rL4L","url:./images/cow-vase-4.jpeg":"liHMh","url:./images/cow-vase-5.jpeg":"2A4do","url:./images/candle-holder-1.jpeg":"4CimX","url:./images/candle-holder-2.jpeg":"hUYQb","url:./images/plate-cup-1.jpeg":"ihdS8","url:./images/plate-cup-2.jpeg":"em9e8","url:./images/second-layered-vase-1.jpeg":"8sRi4","url:./images/second-layered-vase-2.jpeg":"gXai8","url:./images/second-layered-vase-3.jpeg":"jpCAN","url:./images/planter-1.jpeg":"9FBlo","url:./images/planter-2.jpeg":"1tiXD","url:./images/planter-3.jpeg":"8c8Jf","url:./images/first-layered-vase-2.jpeg":"3S5Ie","url:./images/first-layered-vase-3.jpeg":"aRJGN","url:./images/penwing-pitcher-1.jpeg":"i7C73","url:./images/penwing-pitcher-2.jpeg":"6Hxud","@parcel/transformer-js/src/esmodule-helpers.js":"jnFvT"}],"veRsN":[function(require,module,exports,__globalThis) {
+},{"url:./images/many-hands.jpg":"veRsN","url:./images/fish-strainer.jpg":"13ERS","url:./images/three-pitchers.jpg":"4MOwD","url:./images/face-lamp-1.jpeg":"4cAIo","url:./images/face-lamp-2.jpeg":"jAEIi","url:./images/jade-red-narrow.jpeg":"fg4Am","url:./images/jade-red-narrow-2.jpg":"gHzWN","url:./images/jade-red-wide-1.jpeg":"dH1LT","url:./images/jade-red-wide-2.jpeg":"du8MS","url:./images/moon-jar-1.jpeg":"awA2e","url:./images/moon-jar-2.jpeg":"bbPTs","url:./images/ocean-moon-jar.jpeg":"hsYWR","url:./images/kerkumbly-pitcher-1.jpeg":"hPb3r","url:./images/kerkumbly-pitcher-2.jpeg":"2EDgd","url:./images/first-layered-vase-1.jpeg":"finDB","url:./images/minty-vase.jpeg":"9hJxh","url:./images/small-bowl-set-1.jpeg":"fRuQq","url:./images/small-bowl-set-2.jpeg":"1vLF1","url:./images/cow-vase-1.jpeg":"j9ntc","url:./images/cow-vase-2.jpeg":"NeexJ","url:./images/cow-vase-3.jpeg":"6rL4L","url:./images/cow-vase-4.jpeg":"liHMh","url:./images/cow-vase-5.jpeg":"2A4do","url:./images/candle-holder-1.jpeg":"4CimX","url:./images/candle-holder-2.jpeg":"hUYQb","url:./images/plate-cup-1.jpeg":"ihdS8","url:./images/plate-cup-2.jpeg":"em9e8","url:./images/second-layered-vase-1.jpeg":"8sRi4","url:./images/second-layered-vase-2.jpeg":"gXai8","url:./images/second-layered-vase-3.jpeg":"jpCAN","url:./images/planter-1.jpeg":"9FBlo","url:./images/planter-2.jpeg":"1tiXD","url:./images/planter-3.jpeg":"8c8Jf","url:./images/first-layered-vase-2.jpeg":"3S5Ie","url:./images/first-layered-vase-3.jpeg":"aRJGN","@parcel/transformer-js/src/esmodule-helpers.js":"jnFvT","url:./images/penwing-pitcher-1.jpeg":"i7C73","url:./images/penwing-pitcher-2.jpeg":"6Hxud"}],"veRsN":[function(require,module,exports,__globalThis) {
 module.exports = module.bundle.resolve("many-hands.adda8537.jpg") + "?" + Date.now();
 
 },{}],"13ERS":[function(require,module,exports,__globalThis) {
@@ -25707,12 +25660,6 @@ module.exports = module.bundle.resolve("first-layered-vase-2.d48345b1.jpeg") + "
 },{}],"aRJGN":[function(require,module,exports,__globalThis) {
 module.exports = module.bundle.resolve("first-layered-vase-3.9cd73d1e.jpeg") + "?" + Date.now();
 
-},{}],"i7C73":[function(require,module,exports,__globalThis) {
-module.exports = module.bundle.resolve("penwing-pitcher-1.8e64127d.jpeg") + "?" + Date.now();
-
-},{}],"6Hxud":[function(require,module,exports,__globalThis) {
-module.exports = module.bundle.resolve("penwing-pitcher-2.a1bbf411.jpeg") + "?" + Date.now();
-
 },{}],"jnFvT":[function(require,module,exports,__globalThis) {
 exports.interopDefault = function(a) {
     return a && a.__esModule ? a : {
@@ -25742,6 +25689,12 @@ exports.export = function(dest, destName, get) {
         get: get
     });
 };
+
+},{}],"i7C73":[function(require,module,exports,__globalThis) {
+module.exports = module.bundle.resolve("penwing-pitcher-1.8e64127d.jpeg") + "?" + Date.now();
+
+},{}],"6Hxud":[function(require,module,exports,__globalThis) {
+module.exports = module.bundle.resolve("penwing-pitcher-2.a1bbf411.jpeg") + "?" + Date.now();
 
 },{}],"9naod":[function(require,module,exports,__globalThis) {
 var $parcel$ReactRefreshHelpers$7981 = require("@parcel/transformer-react-refresh-wrap/lib/helpers/helpers.js");
@@ -28197,7 +28150,14 @@ var _react = require("react");
 var _reactDefault = parcelHelpers.interopDefault(_react);
 var _potteryData = require("../data/potteryData");
 const FilterControls = ({ shapeFilter, clayFilter, sortBy, onShapeChange, onClayChange, onSortChange, onClearFilters })=>{
-    const shapes = (0, _potteryData.getUniqueValues)('shape');
+    const allShapes = (0, _potteryData.getUniqueValues)('shape');
+    const shapeOrder = [
+        'Vase',
+        'Kitchenware',
+        'Tableware',
+        'Other'
+    ];
+    const shapes = shapeOrder.filter((shape)=>allShapes.includes(shape)).concat(allShapes.filter((shape)=>!shapeOrder.includes(shape)));
     const clays = (0, _potteryData.getUniqueValues)('clay');
     return /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
         className: "filter-controls",
@@ -28215,7 +28175,7 @@ const FilterControls = ({ shapeFilter, clayFilter, sortBy, onShapeChange, onClay
                                 children: "All Shapes"
                             }, void 0, false, {
                                 fileName: "src/components/FilterControls.js",
-                                lineNumber: 21,
+                                lineNumber: 24,
                                 columnNumber: 13
                             }, undefined),
                             shapes.map((shape)=>/*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("option", {
@@ -28223,18 +28183,18 @@ const FilterControls = ({ shapeFilter, clayFilter, sortBy, onShapeChange, onClay
                                     children: shape
                                 }, shape, false, {
                                     fileName: "src/components/FilterControls.js",
-                                    lineNumber: 23,
+                                    lineNumber: 26,
                                     columnNumber: 15
                                 }, undefined))
                         ]
                     }, void 0, true, {
                         fileName: "src/components/FilterControls.js",
-                        lineNumber: 20,
+                        lineNumber: 23,
                         columnNumber: 11
                     }, undefined)
                 }, void 0, false, {
                     fileName: "src/components/FilterControls.js",
-                    lineNumber: 19,
+                    lineNumber: 22,
                     columnNumber: 9
                 }, undefined),
                 /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
@@ -28248,7 +28208,7 @@ const FilterControls = ({ shapeFilter, clayFilter, sortBy, onShapeChange, onClay
                                 children: "All Clays"
                             }, void 0, false, {
                                 fileName: "src/components/FilterControls.js",
-                                lineNumber: 30,
+                                lineNumber: 33,
                                 columnNumber: 13
                             }, undefined),
                             clays.map((clay)=>/*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("option", {
@@ -28256,18 +28216,18 @@ const FilterControls = ({ shapeFilter, clayFilter, sortBy, onShapeChange, onClay
                                     children: clay
                                 }, clay, false, {
                                     fileName: "src/components/FilterControls.js",
-                                    lineNumber: 32,
+                                    lineNumber: 35,
                                     columnNumber: 15
                                 }, undefined))
                         ]
                     }, void 0, true, {
                         fileName: "src/components/FilterControls.js",
-                        lineNumber: 29,
+                        lineNumber: 32,
                         columnNumber: 11
                     }, undefined)
                 }, void 0, false, {
                     fileName: "src/components/FilterControls.js",
-                    lineNumber: 28,
+                    lineNumber: 31,
                     columnNumber: 9
                 }, undefined),
                 /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
@@ -28282,7 +28242,7 @@ const FilterControls = ({ shapeFilter, clayFilter, sortBy, onShapeChange, onClay
                                 children: "Newest First"
                             }, void 0, false, {
                                 fileName: "src/components/FilterControls.js",
-                                lineNumber: 40,
+                                lineNumber: 43,
                                 columnNumber: 13
                             }, undefined),
                             /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("option", {
@@ -28290,7 +28250,7 @@ const FilterControls = ({ shapeFilter, clayFilter, sortBy, onShapeChange, onClay
                                 children: "Oldest First"
                             }, void 0, false, {
                                 fileName: "src/components/FilterControls.js",
-                                lineNumber: 41,
+                                lineNumber: 44,
                                 columnNumber: 13
                             }, undefined),
                             /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("option", {
@@ -28298,7 +28258,7 @@ const FilterControls = ({ shapeFilter, clayFilter, sortBy, onShapeChange, onClay
                                 children: "By Shape"
                             }, void 0, false, {
                                 fileName: "src/components/FilterControls.js",
-                                lineNumber: 42,
+                                lineNumber: 45,
                                 columnNumber: 13
                             }, undefined),
                             /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("option", {
@@ -28306,7 +28266,7 @@ const FilterControls = ({ shapeFilter, clayFilter, sortBy, onShapeChange, onClay
                                 children: "By Clay"
                             }, void 0, false, {
                                 fileName: "src/components/FilterControls.js",
-                                lineNumber: 43,
+                                lineNumber: 46,
                                 columnNumber: 13
                             }, undefined),
                             /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("option", {
@@ -28314,18 +28274,18 @@ const FilterControls = ({ shapeFilter, clayFilter, sortBy, onShapeChange, onClay
                                 children: "A-Z"
                             }, void 0, false, {
                                 fileName: "src/components/FilterControls.js",
-                                lineNumber: 44,
+                                lineNumber: 47,
                                 columnNumber: 13
                             }, undefined)
                         ]
                     }, void 0, true, {
                         fileName: "src/components/FilterControls.js",
-                        lineNumber: 39,
+                        lineNumber: 42,
                         columnNumber: 11
                     }, undefined)
                 }, void 0, false, {
                     fileName: "src/components/FilterControls.js",
-                    lineNumber: 38,
+                    lineNumber: 41,
                     columnNumber: 9
                 }, undefined),
                 /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("button", {
@@ -28334,18 +28294,18 @@ const FilterControls = ({ shapeFilter, clayFilter, sortBy, onShapeChange, onClay
                     children: "Reset"
                 }, void 0, false, {
                     fileName: "src/components/FilterControls.js",
-                    lineNumber: 48,
+                    lineNumber: 51,
                     columnNumber: 9
                 }, undefined)
             ]
         }, void 0, true, {
             fileName: "src/components/FilterControls.js",
-            lineNumber: 18,
+            lineNumber: 21,
             columnNumber: 7
         }, undefined)
     }, void 0, false, {
         fileName: "src/components/FilterControls.js",
-        lineNumber: 17,
+        lineNumber: 20,
         columnNumber: 5
     }, undefined);
 };
@@ -28428,64 +28388,90 @@ const PotteryModal = ({ piece, isOpen, onClose })=>{
                 }, undefined),
                 /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
                     className: "modal-image-section",
-                    children: /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
-                        className: "modal-image-container",
-                        children: [
-                            /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("img", {
-                                src: images[currentImageIndex],
-                                alt: `${piece.title} - Image ${currentImageIndex + 1}`
-                            }, void 0, false, {
-                                fileName: "src/components/PotteryModal.js",
-                                lineNumber: 50,
-                                columnNumber: 13
-                            }, undefined),
-                            images.length > 1 && /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _jsxDevRuntime.Fragment), {
-                                children: [
-                                    /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("button", {
-                                        className: "modal-nav-arrow modal-nav-arrow-left",
-                                        onClick: prevImage,
-                                        "aria-label": "Previous image",
-                                        children: "\u2039"
-                                    }, void 0, false, {
+                    children: [
+                        /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
+                            className: "modal-image-container",
+                            children: [
+                                images.map((imgSrc, idx)=>/*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("img", {
+                                        src: imgSrc,
+                                        alt: "",
+                                        style: {
+                                            display: 'none'
+                                        },
+                                        loading: "eager"
+                                    }, idx, false, {
                                         fileName: "src/components/PotteryModal.js",
-                                        lineNumber: 57,
-                                        columnNumber: 17
-                                    }, undefined),
-                                    /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("button", {
-                                        className: "modal-nav-arrow modal-nav-arrow-right",
-                                        onClick: nextImage,
-                                        "aria-label": "Next image",
-                                        children: "\u203A"
-                                    }, void 0, false, {
-                                        fileName: "src/components/PotteryModal.js",
-                                        lineNumber: 64,
-                                        columnNumber: 17
-                                    }, undefined),
-                                    /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
-                                        className: "modal-image-indicators",
-                                        children: images.map((_, index)=>/*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("button", {
-                                                className: `modal-indicator ${index === currentImageIndex ? 'active' : ''}`,
-                                                onClick: ()=>setCurrentImageIndex(index),
-                                                "aria-label": `View image ${index + 1}`
-                                            }, index, false, {
-                                                fileName: "src/components/PotteryModal.js",
-                                                lineNumber: 74,
-                                                columnNumber: 21
-                                            }, undefined))
-                                    }, void 0, false, {
-                                        fileName: "src/components/PotteryModal.js",
-                                        lineNumber: 72,
-                                        columnNumber: 17
-                                    }, undefined)
-                                ]
-                            }, void 0, true)
-                        ]
-                    }, void 0, true, {
-                        fileName: "src/components/PotteryModal.js",
-                        lineNumber: 49,
-                        columnNumber: 11
-                    }, undefined)
-                }, void 0, false, {
+                                        lineNumber: 52,
+                                        columnNumber: 15
+                                    }, undefined)),
+                                /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("img", {
+                                    src: images[currentImageIndex],
+                                    alt: `${piece.title} - Image ${currentImageIndex + 1}`
+                                }, currentImageIndex, false, {
+                                    fileName: "src/components/PotteryModal.js",
+                                    lineNumber: 60,
+                                    columnNumber: 13
+                                }, undefined),
+                                images.length > 1 && /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _jsxDevRuntime.Fragment), {
+                                    children: [
+                                        /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("button", {
+                                            className: "modal-nav-arrow modal-nav-arrow-left",
+                                            onClick: prevImage,
+                                            "aria-label": "Previous image",
+                                            children: "\u2039"
+                                        }, void 0, false, {
+                                            fileName: "src/components/PotteryModal.js",
+                                            lineNumber: 68,
+                                            columnNumber: 17
+                                        }, undefined),
+                                        /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("button", {
+                                            className: "modal-nav-arrow modal-nav-arrow-right",
+                                            onClick: nextImage,
+                                            "aria-label": "Next image",
+                                            children: "\u203A"
+                                        }, void 0, false, {
+                                            fileName: "src/components/PotteryModal.js",
+                                            lineNumber: 75,
+                                            columnNumber: 17
+                                        }, undefined),
+                                        /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
+                                            className: "modal-image-indicators",
+                                            children: images.map((_, index)=>/*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("button", {
+                                                    className: `modal-indicator ${index === currentImageIndex ? 'active' : ''}`,
+                                                    onClick: ()=>setCurrentImageIndex(index),
+                                                    "aria-label": `View image ${index + 1}`
+                                                }, index, false, {
+                                                    fileName: "src/components/PotteryModal.js",
+                                                    lineNumber: 85,
+                                                    columnNumber: 21
+                                                }, undefined))
+                                        }, void 0, false, {
+                                            fileName: "src/components/PotteryModal.js",
+                                            lineNumber: 83,
+                                            columnNumber: 17
+                                        }, undefined)
+                                    ]
+                                }, void 0, true)
+                            ]
+                        }, void 0, true, {
+                            fileName: "src/components/PotteryModal.js",
+                            lineNumber: 49,
+                            columnNumber: 11
+                        }, undefined),
+                        images.length > 1 && /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
+                            className: "modal-image-counter",
+                            children: [
+                                currentImageIndex + 1,
+                                " of ",
+                                images.length
+                            ]
+                        }, void 0, true, {
+                            fileName: "src/components/PotteryModal.js",
+                            lineNumber: 98,
+                            columnNumber: 13
+                        }, undefined)
+                    ]
+                }, void 0, true, {
                     fileName: "src/components/PotteryModal.js",
                     lineNumber: 48,
                     columnNumber: 9
@@ -28498,7 +28484,7 @@ const PotteryModal = ({ piece, isOpen, onClose })=>{
                             children: piece.title
                         }, void 0, false, {
                             fileName: "src/components/PotteryModal.js",
-                            lineNumber: 88,
+                            lineNumber: 105,
                             columnNumber: 11
                         }, undefined),
                         /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
@@ -28512,7 +28498,7 @@ const PotteryModal = ({ piece, isOpen, onClose })=>{
                                             children: "Shape:"
                                         }, void 0, false, {
                                             fileName: "src/components/PotteryModal.js",
-                                            lineNumber: 91,
+                                            lineNumber: 108,
                                             columnNumber: 15
                                         }, undefined),
                                         /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("span", {
@@ -28520,13 +28506,13 @@ const PotteryModal = ({ piece, isOpen, onClose })=>{
                                             children: piece.shape
                                         }, void 0, false, {
                                             fileName: "src/components/PotteryModal.js",
-                                            lineNumber: 92,
+                                            lineNumber: 109,
                                             columnNumber: 15
                                         }, undefined)
                                     ]
                                 }, void 0, true, {
                                     fileName: "src/components/PotteryModal.js",
-                                    lineNumber: 90,
+                                    lineNumber: 107,
                                     columnNumber: 13
                                 }, undefined),
                                 /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
@@ -28537,7 +28523,7 @@ const PotteryModal = ({ piece, isOpen, onClose })=>{
                                             children: "Clay:"
                                         }, void 0, false, {
                                             fileName: "src/components/PotteryModal.js",
-                                            lineNumber: 95,
+                                            lineNumber: 112,
                                             columnNumber: 15
                                         }, undefined),
                                         /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("span", {
@@ -28545,13 +28531,13 @@ const PotteryModal = ({ piece, isOpen, onClose })=>{
                                             children: piece.clay
                                         }, void 0, false, {
                                             fileName: "src/components/PotteryModal.js",
-                                            lineNumber: 96,
+                                            lineNumber: 113,
                                             columnNumber: 15
                                         }, undefined)
                                     ]
                                 }, void 0, true, {
                                     fileName: "src/components/PotteryModal.js",
-                                    lineNumber: 94,
+                                    lineNumber: 111,
                                     columnNumber: 13
                                 }, undefined),
                                 /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
@@ -28562,7 +28548,7 @@ const PotteryModal = ({ piece, isOpen, onClose })=>{
                                             children: "Season:"
                                         }, void 0, false, {
                                             fileName: "src/components/PotteryModal.js",
-                                            lineNumber: 99,
+                                            lineNumber: 116,
                                             columnNumber: 15
                                         }, undefined),
                                         /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("span", {
@@ -28570,37 +28556,25 @@ const PotteryModal = ({ piece, isOpen, onClose })=>{
                                             children: piece.seasonYear
                                         }, void 0, false, {
                                             fileName: "src/components/PotteryModal.js",
-                                            lineNumber: 100,
+                                            lineNumber: 117,
                                             columnNumber: 15
                                         }, undefined)
                                     ]
                                 }, void 0, true, {
                                     fileName: "src/components/PotteryModal.js",
-                                    lineNumber: 98,
+                                    lineNumber: 115,
                                     columnNumber: 13
                                 }, undefined)
                             ]
                         }, void 0, true, {
                             fileName: "src/components/PotteryModal.js",
-                            lineNumber: 89,
+                            lineNumber: 106,
                             columnNumber: 11
-                        }, undefined),
-                        images.length > 1 && /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
-                            className: "modal-image-counter",
-                            children: [
-                                currentImageIndex + 1,
-                                " of ",
-                                images.length
-                            ]
-                        }, void 0, true, {
-                            fileName: "src/components/PotteryModal.js",
-                            lineNumber: 105,
-                            columnNumber: 13
                         }, undefined)
                     ]
                 }, void 0, true, {
                     fileName: "src/components/PotteryModal.js",
-                    lineNumber: 87,
+                    lineNumber: 104,
                     columnNumber: 9
                 }, undefined)
             ]
@@ -28631,4 +28605,4 @@ module.exports = module.bundle.resolve("bill.0f70e42a.jpg") + "?" + Date.now();
 
 },{}],"goyoj":[function() {},{}]},["5j6Kf","a0t4e"], "a0t4e", "parcelRequiref750", {}, "./", "/", "http://localhost:1234")
 
-//# sourceMappingURL=bill-pottery-portfolio.31b563d9.js.map
+//# sourceMappingURL=pottery-portfolio.31b563d9.js.map
