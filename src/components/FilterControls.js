@@ -10,7 +10,10 @@ const FilterControls = ({
   onSortChange,
   onClearFilters 
 }) => {
-  const shapes = getUniqueValues('shape');
+  const allShapes = getUniqueValues('shape');
+  const shapeOrder = ['Vase', 'Kitchenware', 'Tableware', 'Other'];
+  const shapes = shapeOrder.filter(shape => allShapes.includes(shape))
+    .concat(allShapes.filter(shape => !shapeOrder.includes(shape)));
   const clays = getUniqueValues('clay');
 
   return (

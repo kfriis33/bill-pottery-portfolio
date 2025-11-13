@@ -47,9 +47,20 @@ const PotteryModal = ({ piece, isOpen, onClose }) => {
         
         <div className="modal-image-section">
           <div className="modal-image-container">
+            {/* Preload all images to ensure they're bundled and available */}
+            {images.map((imgSrc, idx) => (
+              <img
+                key={idx}
+                src={imgSrc}
+                alt=""
+                style={{ display: 'none' }}
+                loading="eager"
+              />
+            ))}
             <img 
               src={images[currentImageIndex]} 
               alt={`${piece.title} - Image ${currentImageIndex + 1}`}
+              key={currentImageIndex}
             />
             
             {images.length > 1 && (
@@ -82,6 +93,12 @@ const PotteryModal = ({ piece, isOpen, onClose }) => {
               </>
             )}
           </div>
+          
+          {images.length > 1 && (
+            <div className="modal-image-counter">
+              {currentImageIndex + 1} of {images.length}
+            </div>
+          )}
         </div>
         
         <div className="modal-info-section">
@@ -100,12 +117,6 @@ const PotteryModal = ({ piece, isOpen, onClose }) => {
               <span className="value">{piece.seasonYear}</span>
             </div>
           </div>
-          
-          {images.length > 1 && (
-            <div className="modal-image-counter">
-              {currentImageIndex + 1} of {images.length}
-            </div>
-          )}
         </div>
       </div>
     </div>

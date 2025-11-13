@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pottery Portfolio - Handcrafted Ceramics</title>
-    <meta name="description" content="A curated collection of handcrafted pottery pieces showcasing various clay types, forms, and seasonal collections.">
-    
+    <title>William Kuenne Ceramics</title>
+    <meta name="description" content="Handmade ceramics by artist William Kuenne.">
+
     <!-- Preload key fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -44,7 +44,7 @@
 </head>
 <body>
     <div id="root">
-        <div class="loading">Loading pottery collection...</div>
+        <div class="loading">Pots loading...</div>
     </div>
     <script type="module" src="src/index.js"></script>
     <script>
@@ -52,7 +52,7 @@
         console.log('HTML loaded, checking for React app...');
         setTimeout(() => {
             const root = document.getElementById('root');
-            if (root && root.innerHTML.includes('Loading pottery collection')) {
+            if (root && root.innerHTML.includes('Pots loading')) {
                 console.log('React app did not load - still showing loading message');
             } else {
                 console.log('React app loaded successfully');

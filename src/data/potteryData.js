@@ -55,7 +55,7 @@ export const potteryPieces = [
     image: manyHandsImg,
     shape: "Vase",
     clay: "Red Velvet",
-    seasonYear: "Summer 2024"
+    seasonYear: "Spring 2024"
   },
   {
     id: 3,
@@ -69,7 +69,7 @@ export const potteryPieces = [
     id: 4,
     title: "Three Pitchers",
     images: [threePitchersImg],
-    shape: "Pitcher",
+    shape: "Tableware",
     clay: "Mixed",
     seasonYear: "Spring 2023"
   },
@@ -77,7 +77,7 @@ export const potteryPieces = [
     id: 5,
     title: "Faces",
     images: [faceLamp2Img, faceLamp1Img],
-    shape: "Lamp",
+    shape: "Vase",
     clay: "Porcelain",
     seasonYear: "Summer 2024"
   },
@@ -93,15 +93,15 @@ export const potteryPieces = [
     id: 7,
     title: "Moon Jar",
     images: [moonJar1Img, moonJar2Img],
-    shape: "Moon Jar",
+    shape: "Vase",
     clay: "Porcelain",
     seasonYear: "Summer 2025"
   },
   {
     id: 8,
-    title: "Ocean Moon Jar",
+    title: "Moon Tides Jar",
     image: oceanMoonJarImg,
-    shape: "Moon Jar",
+    shape: "Vase",
     clay: "B-Mix",
     seasonYear: "Summer 2025"
   },
@@ -109,7 +109,7 @@ export const potteryPieces = [
     id: 9,
     title: "Kerkumbly Pitcher",
     images: [kerkumblyPitcher1Img, kerkumblyPitcher2Img],
-    shape: "Pitcher",
+    shape: "Tableware",
     clay: "B-Mix",
     seasonYear: "Spring 2025"
   },
@@ -133,7 +133,7 @@ export const potteryPieces = [
     id: 12,
     title: "Small Bowl Set",
     images: [smallBowlSet1Img, smallBowlSet2Img],
-    shape: "Bowl",
+    shape: "Tableware",
     clay: "B3",
     seasonYear: "Summer 2024"
   },
@@ -173,7 +173,7 @@ export const potteryPieces = [
     id: 17,
     title: "Watermelon Planter",
     images: [planter1Img, planter2Img, planter3Img],
-    shape: "Planter",
+    shape: "Other",
     clay: "Porcelain",
     seasonYear: "Summer 2025"
   },
