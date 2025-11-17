@@ -4,7 +4,7 @@
   "description": "William Kuenne Ceramics",
   "scripts": {
     "dev": "parcel index.html",
-    "build": "parcel build index.html --public-url ./ --no-source-maps",
+    "build": "parcel build index.html --public-url ./ --no-source-maps && cp public/CNAME dist/CNAME",
     "start": "parcel index.html",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist"
