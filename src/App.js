@@ -1,63 +1,25 @@
 import React, { useState, useMemo } from 'react';
-import { potteryPieces } from './data/potteryData';
+import { potteryPieces, getUniqueValues } from './data/potteryData';
 import PotteryCard from './components/PotteryCard';
-import FilterControls from './components/FilterControls';
 import PotteryModal from './components/PotteryModal';
 import billImg from 'url:./data/images/bill.jpg';
 import './styles/App.css';
 
+const SHAPE_ORDER = ['Vase', 'Kitchenware', 'Tableware', 'Other'];
+
 const App = () => {
-  const [currentPage, setCurrentPage] = useState('pots');
-  const [shapeFilter, setShapeFilter] = useState('');
-  const [clayFilter, setClayFilter] = useState('');
-  const [sortBy, setSortBy] = useState('newest');
+  const [currentPage, setCurrentPage] = useState('all');
   const [selectedPiece, setSelectedPiece] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const filteredAndSortedPieces = useMemo(() => {
-    let filtered = potteryPieces.filter(piece => {
-      return (
-        (shapeFilter === '' || piece.shape === shapeFilter) &&
-        (clayFilter === '' || piece.clay === clayFilter)
-      );
-    });
+  const allShapes = getUniqueValues('shape');
+  const shapes = SHAPE_ORDER.filter(s => allShapes.includes(s))
+    .concat(allShapes.filter(s => !SHAPE_ORDER.includes(s)));
 
-    // Helper function to convert season/year to sortable value
-    const getSeasonValue = (seasonYear) => {
-      const [season, year] = seasonYear.split(' ');
-      const seasonOrder = { 'Winter': 1, 'Spring': 2, 'Summer': 3, 'Fall': 4 };
-      return parseInt(year) * 10 + (seasonOrder[season] || 0);
-    };
-
-    // Sort the filtered results
-    filtered.sort((a, b) => {
-      switch (sortBy) {
-        case 'newest':
-          // Sort by season/year, newest first (more recent seasons/years first)
-          return getSeasonValue(b.seasonYear) - getSeasonValue(a.seasonYear);
-        case 'oldest':
-          // Sort by season/year, oldest first 
-          return getSeasonValue(a.seasonYear) - getSeasonValue(b.seasonYear);
-        case 'shape':
-        case 'clay':
-        case 'title':
-          // Sort alphabetically by the selected field
-          const aValue = a[sortBy];
-          const bValue = b[sortBy];
-          return aValue.localeCompare(bValue);
-        default:
-          return 0;
-      }
-    });
-
-    return filtered;
-  }, [shapeFilter, clayFilter, sortBy]);
-
-  const clearAllFilters = () => {
-    setShapeFilter('');
-    setClayFilter('');
-    setSortBy('newest');
-  };
+  const filteredPieces = useMemo(() => {
+    if (currentPage === 'all' || currentPage === 'about') return potteryPieces;
+    return potteryPieces.filter(piece => piece.shape === currentPage);
+  }, [currentPage]);
 
   const openModal = (piece) => {
     setSelectedPiece(piece);
@@ -78,7 +40,7 @@ const App = () => {
               <img src={billImg} alt="Bill Kuenne" className="artist-photo" />
             </div>
             <p>
-              William (Bill) Kuenne is a ceramacist based in San Francisco, California. 
+              William (Bill) Kuenne is a ceramacist based in San Francisco, California.
               He throws, trims, and glazes all his pieces by hand.
             </p>
             <p>
@@ -90,24 +52,11 @@ const App = () => {
     }
 
     return (
-      <>
-        <div className="results-info">
-          <p>Showing {filteredAndSortedPieces.length} of {potteryPieces.length} pieces</p>
-        </div>
-
-        <div className="pottery-grid">
-          {filteredAndSortedPieces.map(piece => (
-            <PotteryCard key={piece.id} piece={piece} onClick={() => openModal(piece)} />
-          ))}
-        </div>
-
-        {filteredAndSortedPieces.length === 0 && (
-          <div className="no-results">
-            <p>No pottery pieces match your current filters.</p>
-            <button onClick={clearAllFilters}>Clear filters to see all pieces</button>
-          </div>
-        )}
-      </>
+      <div className="pottery-grid">
+        {filteredPieces.map(piece => (
+          <PotteryCard key={piece.id} piece={piece} onClick={() => openModal(piece)} />
+        ))}
+      </div>
     );
   };
 
@@ -116,15 +65,24 @@ const App = () => {
       <div className="vase-container">
         <header className="header">
           <h1 className="site-title">William Kuenne</h1>
-          
+
           <nav className="navigation">
-            <button 
-              className={`nav-item ${currentPage === 'pots' ? 'active' : ''}`}
-              onClick={() => setCurrentPage('pots')}
+            <button
+              className={`nav-item ${currentPage === 'all' ? 'active' : ''}`}
+              onClick={() => setCurrentPage('all')}
             >
-              Pots
+              All
             </button>
-            <button 
+            {shapes.map(shape => (
+              <button
+                key={shape}
+                className={`nav-item ${currentPage === shape ? 'active' : ''}`}
+                onClick={() => setCurrentPage(shape)}
+              >
+                {shape}
+              </button>
+            ))}
+            <button
               className={`nav-item ${currentPage === 'about' ? 'active' : ''}`}
               onClick={() => setCurrentPage('about')}
             >
@@ -133,18 +91,6 @@ const App = () => {
           </nav>
         </header>
       </div>
-      
-      {currentPage === 'pots' && (
-        <FilterControls
-          shapeFilter={shapeFilter}
-          clayFilter={clayFilter}
-          sortBy={sortBy}
-          onShapeChange={setShapeFilter}
-          onClayChange={setClayFilter}
-          onSortChange={setSortBy}
-          onClearFilters={clearAllFilters}
-        />
-      )}
 
       <main className="main-content">
         {renderContent()}

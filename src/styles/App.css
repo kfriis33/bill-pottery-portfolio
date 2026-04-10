@@ -28,42 +28,10 @@ body {
 
 /* Vase Container */
 .vase-container {
-  position: relative;
-  max-width: 600px;
-  margin: 4rem auto 3rem;
-  padding: 3rem 4rem 2rem;
+  max-width: 900px;
+  margin: 2rem auto 1rem;
+  padding: 2rem 4rem 1rem;
   background: #ffffff;
-}
-
-.vase-container::before {
-  content: '';
-  position: absolute;
-  top: 15%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 95%;
-  height: 100%;
-  border: 3px solid #000000;
-  border-radius: 85% 85% 80% 80% / 35% 35% 85% 85%;
-  pointer-events: none;
-  z-index: 1;
-}
-
-/* Add the vase neck/rim using an additional pseudo-element */
-.vase-container::after {
-  content: '';
-  position: absolute;
-  top: -15px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 60%;
-  height: 25%;
-  border: 3px solid #000000;
-  border-bottom: none;
-  border-radius: 50% 50% 20% 20% / 60% 60% 40% 40%;
-  background: #ffffff;
-  pointer-events: none;
-  z-index: 3;
 }
 
 /* Header */
@@ -76,9 +44,9 @@ body {
 }
 
 .site-title {
-  font-family: 'Knewave';
-  font-size: 2.5rem;
-  font-weight: 600;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 1.25rem;
+  font-weight: 400;
   letter-spacing: 0.05em;
   color: #000000;
   margin: 2rem 0 1rem;
@@ -123,15 +91,16 @@ body {
 .nav-item {
   background: none;
   border: none;
-  padding: 0.8rem 2.5rem;
-  font-family: 'Fredoka', cursive;
+  padding: 0.8rem 1.4rem;
+  font-family: Palatino, 'Palatino Linotype', Georgia, serif;
   font-size: 1.1rem;
-  font-weight: 500;
+  font-weight: 300;
   color: #666666;
   cursor: pointer;
   transition: all 0.3s ease;
   position: relative;
   letter-spacing: 0.02em;
+  white-space: nowrap;
 }
 
 .nav-item:hover {
@@ -154,12 +123,7 @@ body {
 
 /* Filter controls */
 .filter-controls {
-  background: #ffffff;
-  padding: 2rem 2rem;
-  margin: 4rem auto 3rem;
-  max-width: 1400px;
-  position: relative;
-  border-radius: 15px;
+  display: none;
 }
 
 .filter-section {
@@ -277,7 +241,7 @@ body {
 /* Pottery grid */
 .pottery-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 2rem;
   margin-bottom: 3rem;
 }

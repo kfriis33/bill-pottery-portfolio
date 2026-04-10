@@ -57,14 +57,6 @@ const PotteryCard = ({ piece, onClick }) => {
         )}
       </div>
       
-      <div className="card-content">
-        <h3 className="piece-title">{piece.title}</h3>
-        <div className="metadata">
-          <span className="metadata-item shape">{piece.shape}</span>
-          <span className="metadata-item clay">{piece.clay}</span>
-          <span className="metadata-item season">{piece.seasonYear}</span>
-        </div>
-      </div>
     </div>
   );
 };
