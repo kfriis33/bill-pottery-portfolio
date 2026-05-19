@@ -25002,6 +25002,10 @@ var _potteryCard = require("./components/PotteryCard");
 var _potteryCardDefault = parcelHelpers.interopDefault(_potteryCard);
 var _potteryModal = require("./components/PotteryModal");
 var _potteryModalDefault = parcelHelpers.interopDefault(_potteryModal);
+var _subscribePopup = require("./components/SubscribePopup");
+var _subscribePopupDefault = parcelHelpers.interopDefault(_subscribePopup);
+var _subscribePage = require("./components/SubscribePage");
+var _subscribePageDefault = parcelHelpers.interopDefault(_subscribePage);
 var _billJpg = require("url:./data/images/bill.jpg");
 var _billJpgDefault = parcelHelpers.interopDefault(_billJpg);
 var _appCss = require("./styles/App.css");
@@ -25017,6 +25021,12 @@ const App = ()=>{
     const [currentPage, setCurrentPage] = (0, _react.useState)('all');
     const [selectedPiece, setSelectedPiece] = (0, _react.useState)(null);
     const [isModalOpen, setIsModalOpen] = (0, _react.useState)(false);
+    const [isSubscribeOpen, setIsSubscribeOpen] = (0, _react.useState)(false);
+    (0, _react.useEffect)(()=>{
+        if (localStorage.getItem('subscribeDismissed')) return;
+        const timer = setTimeout(()=>setIsSubscribeOpen(true), 2000);
+        return ()=>clearTimeout(timer);
+    }, []);
     const allShapes = (0, _potteryData.getUniqueValues)('shape');
     const shapes = SHAPE_ORDER.filter((s)=>allShapes.includes(s)).concat(allShapes.filter((s)=>!SHAPE_ORDER.includes(s)));
     const filteredPieces = (0, _react.useMemo)(()=>{
@@ -25034,6 +25044,11 @@ const App = ()=>{
         setSelectedPiece(null);
     };
     const renderContent = ()=>{
+        if (currentPage === 'subscribe') return /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _subscribePageDefault.default), {}, void 0, false, {
+            fileName: "src/App.js",
+            lineNumber: 45,
+            columnNumber: 14
+        }, undefined);
         if (currentPage === 'about') return /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
             className: "about-page",
             children: /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
@@ -25047,19 +25062,19 @@ const App = ()=>{
                             className: "artist-photo"
                         }, void 0, false, {
                             fileName: "src/App.js",
-                            lineNumber: 40,
+                            lineNumber: 53,
                             columnNumber: 15
                         }, undefined)
                     }, void 0, false, {
                         fileName: "src/App.js",
-                        lineNumber: 39,
+                        lineNumber: 52,
                         columnNumber: 13
                     }, undefined),
                     /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("p", {
                         children: "William (Bill) Kuenne is a ceramacist based in San Francisco, California. He throws, trims, and glazes all his pieces by hand."
                     }, void 0, false, {
                         fileName: "src/App.js",
-                        lineNumber: 42,
+                        lineNumber: 55,
                         columnNumber: 13
                     }, undefined),
                     /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("p", {
@@ -25072,25 +25087,40 @@ const App = ()=>{
                                 children: "@w.k.clay"
                             }, void 0, false, {
                                 fileName: "src/App.js",
-                                lineNumber: 47,
+                                lineNumber: 60,
                                 columnNumber: 140
                             }, undefined),
                             "."
                         ]
                     }, void 0, true, {
                         fileName: "src/App.js",
-                        lineNumber: 46,
+                        lineNumber: 59,
+                        columnNumber: 13
+                    }, undefined),
+                    /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("p", {
+                        children: /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("button", {
+                            className: "subscribe-link",
+                            onClick: ()=>setIsSubscribeOpen(true),
+                            children: "Subscribe for updates on new work"
+                        }, void 0, false, {
+                            fileName: "src/App.js",
+                            lineNumber: 63,
+                            columnNumber: 15
+                        }, undefined)
+                    }, void 0, false, {
+                        fileName: "src/App.js",
+                        lineNumber: 62,
                         columnNumber: 13
                     }, undefined)
                 ]
             }, void 0, true, {
                 fileName: "src/App.js",
-                lineNumber: 38,
+                lineNumber: 51,
                 columnNumber: 11
             }, undefined)
         }, void 0, false, {
             fileName: "src/App.js",
-            lineNumber: 37,
+            lineNumber: 50,
             columnNumber: 9
         }, undefined);
         return /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
@@ -25100,12 +25130,12 @@ const App = ()=>{
                     onClick: ()=>openModal(piece)
                 }, piece.id, false, {
                     fileName: "src/App.js",
-                    lineNumber: 57,
+                    lineNumber: 75,
                     columnNumber: 11
                 }, undefined))
         }, void 0, false, {
             fileName: "src/App.js",
-            lineNumber: 55,
+            lineNumber: 73,
             columnNumber: 7
         }, undefined);
     };
@@ -25122,7 +25152,7 @@ const App = ()=>{
                             children: "William Kuenne"
                         }, void 0, false, {
                             fileName: "src/App.js",
-                            lineNumber: 67,
+                            lineNumber: 85,
                             columnNumber: 11
                         }, undefined),
                         /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("nav", {
@@ -25134,7 +25164,7 @@ const App = ()=>{
                                     children: "All"
                                 }, void 0, false, {
                                     fileName: "src/App.js",
-                                    lineNumber: 70,
+                                    lineNumber: 88,
                                     columnNumber: 13
                                 }, undefined),
                                 shapes.map((shape)=>/*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("button", {
@@ -25143,7 +25173,7 @@ const App = ()=>{
                                         children: shape
                                     }, shape, false, {
                                         fileName: "src/App.js",
-                                        lineNumber: 77,
+                                        lineNumber: 95,
                                         columnNumber: 15
                                     }, undefined)),
                                 /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("button", {
@@ -25152,24 +25182,33 @@ const App = ()=>{
                                     children: "About"
                                 }, void 0, false, {
                                     fileName: "src/App.js",
-                                    lineNumber: 85,
+                                    lineNumber: 103,
+                                    columnNumber: 13
+                                }, undefined),
+                                /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("button", {
+                                    className: `nav-item ${currentPage === 'subscribe' ? 'active' : ''}`,
+                                    onClick: ()=>setCurrentPage('subscribe'),
+                                    children: "Contact"
+                                }, void 0, false, {
+                                    fileName: "src/App.js",
+                                    lineNumber: 109,
                                     columnNumber: 13
                                 }, undefined)
                             ]
                         }, void 0, true, {
                             fileName: "src/App.js",
-                            lineNumber: 69,
+                            lineNumber: 87,
                             columnNumber: 11
                         }, undefined)
                     ]
                 }, void 0, true, {
                     fileName: "src/App.js",
-                    lineNumber: 66,
+                    lineNumber: 84,
                     columnNumber: 9
                 }, undefined)
             }, void 0, false, {
                 fileName: "src/App.js",
-                lineNumber: 65,
+                lineNumber: 83,
                 columnNumber: 7
             }, undefined),
             /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("main", {
@@ -25177,7 +25216,7 @@ const App = ()=>{
                 children: renderContent()
             }, void 0, false, {
                 fileName: "src/App.js",
-                lineNumber: 95,
+                lineNumber: 119,
                 columnNumber: 7
             }, undefined),
             /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("footer", {
@@ -25192,19 +25231,29 @@ const App = ()=>{
                             children: "@w.k.clay"
                         }, void 0, false, {
                             fileName: "src/App.js",
-                            lineNumber: 100,
+                            lineNumber: 124,
                             columnNumber: 64
                         }, undefined),
-                        " on Instagram."
+                        " on Instagram and ",
+                        /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("button", {
+                            className: "footer-subscribe-link",
+                            onClick: ()=>setIsSubscribeOpen(true),
+                            children: "subscribe"
+                        }, void 0, false, {
+                            fileName: "src/App.js",
+                            lineNumber: 124,
+                            columnNumber: 182
+                        }, undefined),
+                        "."
                     ]
                 }, void 0, true, {
                     fileName: "src/App.js",
-                    lineNumber: 100,
+                    lineNumber: 124,
                     columnNumber: 9
                 }, undefined)
             }, void 0, false, {
                 fileName: "src/App.js",
-                lineNumber: 99,
+                lineNumber: 123,
                 columnNumber: 7
             }, undefined),
             /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _potteryModalDefault.default), {
@@ -25213,17 +25262,28 @@ const App = ()=>{
                 onClose: closeModal
             }, void 0, false, {
                 fileName: "src/App.js",
-                lineNumber: 103,
+                lineNumber: 127,
+                columnNumber: 7
+            }, undefined),
+            /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _subscribePopupDefault.default), {
+                isOpen: isSubscribeOpen,
+                onClose: ()=>{
+                    localStorage.setItem('subscribeDismissed', '1');
+                    setIsSubscribeOpen(false);
+                }
+            }, void 0, false, {
+                fileName: "src/App.js",
+                lineNumber: 133,
                 columnNumber: 7
             }, undefined)
         ]
     }, void 0, true, {
         fileName: "src/App.js",
-        lineNumber: 64,
+        lineNumber: 82,
         columnNumber: 5
     }, undefined);
 };
-_s(App, "WZQ9gndIrbwcpd6im9ORt9INGW0=");
+_s(App, "1wxKVJwPgIj0P/NkZuy5qFcBTNk=");
 _c = App;
 exports.default = App;
 var _c;
@@ -25234,7 +25294,7 @@ $RefreshReg$(_c, "App");
   globalThis.$RefreshReg$ = prevRefreshReg;
   globalThis.$RefreshSig$ = prevRefreshSig;
 }
-},{"react/jsx-dev-runtime":"dVPUn","react":"jMk1U","./data/potteryData":"9frsG","./components/PotteryCard":"9naod","./components/PotteryModal":"aBjJG","url:./data/images/bill.jpg":"7pr3Y","./styles/App.css":"goyoj","@parcel/transformer-js/src/esmodule-helpers.js":"jnFvT","@parcel/transformer-react-refresh-wrap/lib/helpers/helpers.js":"7h6Pi"}],"9frsG":[function(require,module,exports,__globalThis) {
+},{"react/jsx-dev-runtime":"dVPUn","react":"jMk1U","./data/potteryData":"9frsG","./components/PotteryCard":"9naod","./components/PotteryModal":"aBjJG","./components/SubscribePopup":"kgGiu","url:./data/images/bill.jpg":"7pr3Y","./styles/App.css":"goyoj","@parcel/transformer-js/src/esmodule-helpers.js":"jnFvT","@parcel/transformer-react-refresh-wrap/lib/helpers/helpers.js":"7h6Pi","./components/SubscribePage":"Jh4Wh"}],"9frsG":[function(require,module,exports,__globalThis) {
 // Import images as URLs
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
@@ -28322,9 +28382,325 @@ $RefreshReg$(_c, "PotteryModal");
   globalThis.$RefreshReg$ = prevRefreshReg;
   globalThis.$RefreshSig$ = prevRefreshSig;
 }
+},{"react/jsx-dev-runtime":"dVPUn","react":"jMk1U","@parcel/transformer-js/src/esmodule-helpers.js":"jnFvT","@parcel/transformer-react-refresh-wrap/lib/helpers/helpers.js":"7h6Pi"}],"kgGiu":[function(require,module,exports,__globalThis) {
+var $parcel$ReactRefreshHelpers$2380 = require("@parcel/transformer-react-refresh-wrap/lib/helpers/helpers.js");
+$parcel$ReactRefreshHelpers$2380.init();
+var prevRefreshReg = globalThis.$RefreshReg$;
+var prevRefreshSig = globalThis.$RefreshSig$;
+$parcel$ReactRefreshHelpers$2380.prelude(module);
+
+try {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _jsxDevRuntime = require("react/jsx-dev-runtime");
+var _react = require("react");
+var _reactDefault = parcelHelpers.interopDefault(_react);
+var _s = $RefreshSig$();
+const MAILCHIMP_URL = 'https://art.us14.list-manage.com/subscribe/post-json?u=4683756fd0827200878d72a26&id=e5850ac13f&f_id=008cb7e5f0';
+const HONEYPOT = 'b_4683756fd0827200878d72a26_e5850ac13f';
+const SubscribePopup = ({ isOpen, onClose })=>{
+    _s();
+    const [email, setEmail] = (0, _react.useState)('');
+    const [status, setStatus] = (0, _react.useState)(null); // null | 'sending' | 'success' | 'error'
+    const [errorMsg, setErrorMsg] = (0, _react.useState)('');
+    const autoCloseTimer = (0, _react.useRef)(null);
+    // Auto-close after 8s if user hasn't interacted
+    (0, _react.useEffect)(()=>{
+        if (!isOpen) return;
+        autoCloseTimer.current = setTimeout(onClose, 15000);
+        return ()=>clearTimeout(autoCloseTimer.current);
+    }, [
+        isOpen
+    ]);
+    const handleSubmit = (e)=>{
+        e.preventDefault();
+        if (!email) return;
+        // Cancel the 8s auto-close so it doesn't fire mid-flow
+        clearTimeout(autoCloseTimer.current);
+        setStatus('sending');
+        const url = `${MAILCHIMP_URL}&EMAIL=${encodeURIComponent(email)}&${HONEYPOT}=&c=__mcCallback`;
+        window.__mcCallback = (data)=>{
+            delete window.__mcCallback;
+            if (data.result === 'success') {
+                setStatus('success');
+                setEmail('');
+                setTimeout(onClose, 1500);
+            } else {
+                setStatus('error');
+                setErrorMsg(data.msg.replace(/<[^>]*>/g, ''));
+            }
+        };
+        const script = document.createElement('script');
+        script.src = url;
+        document.body.appendChild(script);
+        script.onload = ()=>document.body.removeChild(script);
+    };
+    const handleClose = ()=>{
+        clearTimeout(autoCloseTimer.current);
+        setStatus(null);
+        setEmail('');
+        setErrorMsg('');
+        onClose();
+    };
+    if (!isOpen) return null;
+    return /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
+        className: "subscribe-overlay",
+        onClick: handleClose,
+        children: /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
+            className: "subscribe-popup",
+            onClick: (e)=>e.stopPropagation(),
+            children: [
+                /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("button", {
+                    className: "subscribe-close",
+                    onClick: handleClose,
+                    children: "\xd7"
+                }, void 0, false, {
+                    fileName: "src/components/SubscribePopup.js",
+                    lineNumber: 60,
+                    columnNumber: 9
+                }, undefined),
+                status === 'success' ? /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
+                    className: "subscribe-success",
+                    children: /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("p", {
+                        children: "Thanks for subscribing!"
+                    }, void 0, false, {
+                        fileName: "src/components/SubscribePopup.js",
+                        lineNumber: 64,
+                        columnNumber: 13
+                    }, undefined)
+                }, void 0, false, {
+                    fileName: "src/components/SubscribePopup.js",
+                    lineNumber: 63,
+                    columnNumber: 11
+                }, undefined) : /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _jsxDevRuntime.Fragment), {
+                    children: [
+                        /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("h3", {
+                            children: "Stay in the loop"
+                        }, void 0, false, {
+                            fileName: "src/components/SubscribePopup.js",
+                            lineNumber: 68,
+                            columnNumber: 13
+                        }, undefined),
+                        /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("p", {
+                            children: "Get updates on new pieces and available work."
+                        }, void 0, false, {
+                            fileName: "src/components/SubscribePopup.js",
+                            lineNumber: 69,
+                            columnNumber: 13
+                        }, undefined),
+                        /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("form", {
+                            onSubmit: handleSubmit,
+                            children: [
+                                /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("input", {
+                                    type: "email",
+                                    value: email,
+                                    onChange: (e)=>setEmail(e.target.value),
+                                    placeholder: "your@email.com",
+                                    required: true
+                                }, void 0, false, {
+                                    fileName: "src/components/SubscribePopup.js",
+                                    lineNumber: 71,
+                                    columnNumber: 15
+                                }, undefined),
+                                /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("button", {
+                                    type: "submit",
+                                    disabled: status === 'sending',
+                                    children: status === 'sending' ? 'Subscribing...' : 'Subscribe'
+                                }, void 0, false, {
+                                    fileName: "src/components/SubscribePopup.js",
+                                    lineNumber: 78,
+                                    columnNumber: 15
+                                }, undefined)
+                            ]
+                        }, void 0, true, {
+                            fileName: "src/components/SubscribePopup.js",
+                            lineNumber: 70,
+                            columnNumber: 13
+                        }, undefined),
+                        status === 'error' && /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("p", {
+                            className: "subscribe-error",
+                            children: errorMsg
+                        }, void 0, false, {
+                            fileName: "src/components/SubscribePopup.js",
+                            lineNumber: 83,
+                            columnNumber: 15
+                        }, undefined)
+                    ]
+                }, void 0, true)
+            ]
+        }, void 0, true, {
+            fileName: "src/components/SubscribePopup.js",
+            lineNumber: 59,
+            columnNumber: 7
+        }, undefined)
+    }, void 0, false, {
+        fileName: "src/components/SubscribePopup.js",
+        lineNumber: 58,
+        columnNumber: 5
+    }, undefined);
+};
+_s(SubscribePopup, "ohVoIatsPw9vbcunnNFMYsWQHu8=");
+_c = SubscribePopup;
+exports.default = SubscribePopup;
+var _c;
+$RefreshReg$(_c, "SubscribePopup");
+
+  $parcel$ReactRefreshHelpers$2380.postlude(module);
+} finally {
+  globalThis.$RefreshReg$ = prevRefreshReg;
+  globalThis.$RefreshSig$ = prevRefreshSig;
+}
 },{"react/jsx-dev-runtime":"dVPUn","react":"jMk1U","@parcel/transformer-js/src/esmodule-helpers.js":"jnFvT","@parcel/transformer-react-refresh-wrap/lib/helpers/helpers.js":"7h6Pi"}],"7pr3Y":[function(require,module,exports,__globalThis) {
 module.exports = module.bundle.resolve("bill.0f70e42a.jpg") + "?" + Date.now();
 
-},{}],"goyoj":[function() {},{}]},["5j6Kf","a0t4e"], "a0t4e", "parcelRequiref750", {}, "./", "/", "http://localhost:1234")
+},{}],"goyoj":[function() {},{}],"Jh4Wh":[function(require,module,exports,__globalThis) {
+var $parcel$ReactRefreshHelpers$7016 = require("@parcel/transformer-react-refresh-wrap/lib/helpers/helpers.js");
+$parcel$ReactRefreshHelpers$7016.init();
+var prevRefreshReg = globalThis.$RefreshReg$;
+var prevRefreshSig = globalThis.$RefreshSig$;
+$parcel$ReactRefreshHelpers$7016.prelude(module);
+
+try {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _jsxDevRuntime = require("react/jsx-dev-runtime");
+var _react = require("react");
+var _reactDefault = parcelHelpers.interopDefault(_react);
+var _s = $RefreshSig$();
+const MAILCHIMP_URL = 'https://art.us14.list-manage.com/subscribe/post-json?u=4683756fd0827200878d72a26&id=e5850ac13f&f_id=008cb7e5f0';
+const HONEYPOT = 'b_4683756fd0827200878d72a26_e5850ac13f';
+const SubscribePage = ()=>{
+    _s();
+    const [email, setEmail] = (0, _react.useState)('');
+    const [status, setStatus] = (0, _react.useState)(null); // null | 'sending' | 'success' | 'error'
+    const [errorMsg, setErrorMsg] = (0, _react.useState)('');
+    const inputRef = (0, _react.useRef)(null);
+    const handleSubmit = (e)=>{
+        e.preventDefault();
+        if (!email) return;
+        setStatus('sending');
+        const url = `${MAILCHIMP_URL}&EMAIL=${encodeURIComponent(email)}&${HONEYPOT}=&c=__mcSubscribePageCallback`;
+        window.__mcSubscribePageCallback = (data)=>{
+            delete window.__mcSubscribePageCallback;
+            if (data.result === 'success') {
+                setStatus('success');
+                setEmail('');
+            } else {
+                setStatus('error');
+                setErrorMsg(data.msg.replace(/<[^>]*>/g, ''));
+            }
+        };
+        const script = document.createElement('script');
+        script.src = url;
+        document.body.appendChild(script);
+        script.onload = ()=>document.body.removeChild(script);
+    };
+    return /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
+        className: "subscribe-page",
+        children: /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
+            className: "subscribe-page-content",
+            children: [
+                /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("p", {
+                    className: "subscribe-page-contact",
+                    children: [
+                        "For commissions, questions, or compliments, please reach out to ",
+                        /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("a", {
+                            href: "mailto:clay@williamkuenne.art",
+                            children: "clay@williamkuenne.art"
+                        }, void 0, false, {
+                            fileName: "src/components/SubscribePage.js",
+                            lineNumber: 41,
+                            columnNumber: 75
+                        }, undefined)
+                    ]
+                }, void 0, true, {
+                    fileName: "src/components/SubscribePage.js",
+                    lineNumber: 40,
+                    columnNumber: 9
+                }, undefined),
+                /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("h2", {
+                    children: "Stay in the loop"
+                }, void 0, false, {
+                    fileName: "src/components/SubscribePage.js",
+                    lineNumber: 44,
+                    columnNumber: 9
+                }, undefined),
+                /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("p", {
+                    children: "Get updates on new pieces and available work from William Kuenne."
+                }, void 0, false, {
+                    fileName: "src/components/SubscribePage.js",
+                    lineNumber: 45,
+                    columnNumber: 9
+                }, undefined),
+                status === 'success' ? /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("p", {
+                    className: "subscribe-page-success",
+                    children: "Thanks for subscribing!"
+                }, void 0, false, {
+                    fileName: "src/components/SubscribePage.js",
+                    lineNumber: 48,
+                    columnNumber: 11
+                }, undefined) : /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("form", {
+                    className: "subscribe-page-form",
+                    onSubmit: handleSubmit,
+                    children: [
+                        /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("input", {
+                            ref: inputRef,
+                            type: "email",
+                            value: email,
+                            onChange: (e)=>setEmail(e.target.value),
+                            placeholder: "your@email.com",
+                            required: true
+                        }, void 0, false, {
+                            fileName: "src/components/SubscribePage.js",
+                            lineNumber: 51,
+                            columnNumber: 13
+                        }, undefined),
+                        /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("button", {
+                            type: "submit",
+                            disabled: status === 'sending',
+                            children: status === 'sending' ? 'Subscribing...' : 'Subscribe'
+                        }, void 0, false, {
+                            fileName: "src/components/SubscribePage.js",
+                            lineNumber: 59,
+                            columnNumber: 13
+                        }, undefined),
+                        status === 'error' && /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("p", {
+                            className: "subscribe-page-error",
+                            children: errorMsg
+                        }, void 0, false, {
+                            fileName: "src/components/SubscribePage.js",
+                            lineNumber: 63,
+                            columnNumber: 15
+                        }, undefined)
+                    ]
+                }, void 0, true, {
+                    fileName: "src/components/SubscribePage.js",
+                    lineNumber: 50,
+                    columnNumber: 11
+                }, undefined)
+            ]
+        }, void 0, true, {
+            fileName: "src/components/SubscribePage.js",
+            lineNumber: 39,
+            columnNumber: 7
+        }, undefined)
+    }, void 0, false, {
+        fileName: "src/components/SubscribePage.js",
+        lineNumber: 38,
+        columnNumber: 5
+    }, undefined);
+};
+_s(SubscribePage, "mBcmXRO24r1KZQbuDxXT7h/51Yc=");
+_c = SubscribePage;
+exports.default = SubscribePage;
+var _c;
+$RefreshReg$(_c, "SubscribePage");
+
+  $parcel$ReactRefreshHelpers$7016.postlude(module);
+} finally {
+  globalThis.$RefreshReg$ = prevRefreshReg;
+  globalThis.$RefreshSig$ = prevRefreshSig;
+}
+},{"react/jsx-dev-runtime":"dVPUn","react":"jMk1U","@parcel/transformer-js/src/esmodule-helpers.js":"jnFvT","@parcel/transformer-react-refresh-wrap/lib/helpers/helpers.js":"7h6Pi"}]},["5j6Kf","a0t4e"], "a0t4e", "parcelRequiref750", {}, "./", "/", "http://localhost:1234")
 
 //# sourceMappingURL=bill-pottery-portfolio.31b563d9.js.map
