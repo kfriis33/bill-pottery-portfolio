@@ -636,6 +636,247 @@ body {
   font-size: 0.9rem;
 }
 
+/* Subscribe landing page */
+.subscribe-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 50vh;
+  padding: 4rem 2rem;
+}
+
+.subscribe-page-content {
+  max-width: 480px;
+  width: 100%;
+  text-align: center;
+}
+
+.subscribe-page-content h2 {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 1.4rem;
+  font-weight: 300;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 0.75rem;
+}
+
+.subscribe-page-content > p {
+  font-family: Palatino, 'Palatino Linotype', Georgia, serif;
+  color: #666666;
+  font-size: 1rem;
+  margin-bottom: 2rem;
+}
+
+.subscribe-page-form {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.subscribe-page-form input[type="email"] {
+  flex: 1;
+  padding: 0.65rem 1rem;
+  border: 1px solid #cccccc;
+  border-radius: 2px;
+  font-family: Palatino, 'Palatino Linotype', Georgia, serif;
+  font-size: 1rem;
+  outline: none;
+}
+
+.subscribe-page-form input[type="email"]:focus {
+  border-color: #000000;
+}
+
+.subscribe-page-form button {
+  padding: 0.65rem 1.4rem;
+  background: #000000;
+  color: #ffffff;
+  border: none;
+  border-radius: 2px;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 0.85rem;
+  font-weight: 300;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.subscribe-page-form button:hover {
+  background: #333333;
+}
+
+.subscribe-page-form button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.subscribe-page-success {
+  font-family: Palatino, 'Palatino Linotype', Georgia, serif;
+  font-size: 1.1rem;
+  color: #333333;
+}
+
+.subscribe-page-error {
+  margin-top: 0.75rem;
+  color: #cc0000;
+  font-size: 0.85rem;
+  font-family: Palatino, 'Palatino Linotype', Georgia, serif;
+}
+
+/* Footer subscribe link */
+.footer-subscribe-link {
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.footer-subscribe-link:hover {
+  color: #000000;
+}
+
+/* Subscribe link on about page */
+.subscribe-link {
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: Palatino, 'Palatino Linotype', Georgia, serif;
+  font-size: 1.1rem;
+  color: #666666;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.subscribe-link:hover {
+  color: #000000;
+}
+
+/* Subscribe popup */
+.subscribe-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.subscribe-popup {
+  background: #ffffff;
+  padding: 2.5rem;
+  max-width: 420px;
+  width: 90%;
+  position: relative;
+  border-radius: 4px;
+}
+
+.subscribe-popup h3 {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 1.2rem;
+  font-weight: 300;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+
+.subscribe-popup p {
+  font-family: Palatino, 'Palatino Linotype', Georgia, serif;
+  color: #666666;
+  margin-bottom: 1.5rem;
+  font-size: 1rem;
+}
+
+.subscribe-popup form {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.subscribe-popup input[type="email"] {
+  flex: 1;
+  padding: 0.6rem 1rem;
+  border: 1px solid #cccccc;
+  border-radius: 2px;
+  font-family: Palatino, 'Palatino Linotype', Georgia, serif;
+  font-size: 1rem;
+  outline: none;
+}
+
+.subscribe-popup input[type="email"]:focus {
+  border-color: #000000;
+}
+
+.subscribe-popup form button {
+  padding: 0.6rem 1.2rem;
+  background: #000000;
+  color: #ffffff;
+  border: none;
+  border-radius: 2px;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 0.85rem;
+  font-weight: 300;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.subscribe-popup form button:hover {
+  background: #333333;
+}
+
+.subscribe-popup form button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.subscribe-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  font-size: 1.4rem;
+  color: #999999;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.subscribe-close:hover {
+  color: #000000;
+}
+
+.subscribe-success {
+  text-align: center;
+}
+
+.subscribe-success p {
+  font-size: 1.1rem;
+  color: #333333;
+  margin-bottom: 1rem;
+}
+
+.subscribe-success button {
+  background: none;
+  border: 1px solid #cccccc;
+  padding: 0.4rem 1rem;
+  border-radius: 2px;
+  cursor: pointer;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 0.85rem;
+}
+
+.subscribe-error {
+  color: #cc0000;
+  font-size: 0.85rem;
+  margin-top: 0.75rem;
+  margin-bottom: 0;
+}
+
 /* Responsive design */
 @media (max-width: 1024px) {
   .pottery-grid {

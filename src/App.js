@@ -1,7 +1,9 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { potteryPieces, getUniqueValues } from './data/potteryData';
 import PotteryCard from './components/PotteryCard';
 import PotteryModal from './components/PotteryModal';
+import SubscribePopup from './components/SubscribePopup';
+import SubscribePage from './components/SubscribePage';
 import billImg from 'url:./data/images/bill.jpg';
 import './styles/App.css';
 
@@ -11,6 +13,13 @@ const App = () => {
   const [currentPage, setCurrentPage] = useState('all');
   const [selectedPiece, setSelectedPiece] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSubscribeOpen, setIsSubscribeOpen] = useState(false);
+
+  useEffect(() => {
+    if (localStorage.getItem('subscribeDismissed')) return;
+    const timer = setTimeout(() => setIsSubscribeOpen(true), 2000);
+    return () => clearTimeout(timer);
+  }, []);
 
   const allShapes = getUniqueValues('shape');
   const shapes = SHAPE_ORDER.filter(s => allShapes.includes(s))
@@ -32,6 +41,10 @@ const App = () => {
   };
 
   const renderContent = () => {
+    if (currentPage === 'subscribe') {
+      return <SubscribePage />;
+    }
+
     if (currentPage === 'about') {
       return (
         <div className="about-page">
@@ -45,6 +58,11 @@ const App = () => {
             </p>
             <p>
               If you are interested in purchasing a piece or comissioning a custom piece, please reach out via direct message on Instagram <a href="https://www.instagram.com/w.k.clay" target="_blank" rel="noopener noreferrer">@w.k.clay</a>.
+            </p>
+            <p>
+              <button className="subscribe-link" onClick={() => setIsSubscribeOpen(true)}>
+                Subscribe for updates on new work
+              </button>
             </p>
           </div>
         </div>
@@ -88,6 +106,12 @@ const App = () => {
             >
               About
             </button>
+            <button
+              className={`nav-item ${currentPage === 'subscribe' ? 'active' : ''}`}
+              onClick={() => setCurrentPage('subscribe')}
+            >
+              Contact
+            </button>
           </nav>
         </header>
       </div>
@@ -97,13 +121,21 @@ const App = () => {
       </main>
 
       <footer className="footer">
-        <p>Thanks for visiting! For the latest updates, follow <a href="https://www.instagram.com/w.k.clay" target="_blank" rel="noopener noreferrer">@w.k.clay</a> on Instagram.</p>
+        <p>Thanks for visiting! For the latest updates, follow <a href="https://www.instagram.com/w.k.clay" target="_blank" rel="noopener noreferrer">@w.k.clay</a> on Instagram and <button className="footer-subscribe-link" onClick={() => setIsSubscribeOpen(true)}>subscribe</button>.</p>
       </footer>
       
-      <PotteryModal 
+      <PotteryModal
         piece={selectedPiece}
         isOpen={isModalOpen}
         onClose={closeModal}
+      />
+
+      <SubscribePopup
+        isOpen={isSubscribeOpen}
+        onClose={() => {
+          localStorage.setItem('subscribeDismissed', '1');
+          setIsSubscribeOpen(false);
+        }}
       />
     </div>
   );
