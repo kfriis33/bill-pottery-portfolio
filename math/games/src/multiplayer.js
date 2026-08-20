@@ -46,8 +46,13 @@ window.__debug = { graphPlane, getRoomClient: () => roomClient };
 // Default to whatever host the page itself was loaded from, not a hardcoded
 // "localhost" — a LAN peer loading this page via the host's LAN IP needs the
 // bridge URL to use that same IP, since "localhost" on their machine means
-// themselves, not the host.
-document.getElementById("bridge-url").value = `ws://${location.hostname}:8082`;
+// themselves, not the host. Only applies to local/LAN dev (plain http) —
+// over https the page keeps whatever production wss:// bridge URL is baked
+// into the HTML, since insecure ws:// from an https page is mixed content
+// browsers block outright, and the bridge may live on a different host.
+if (location.protocol !== "https:") {
+  document.getElementById("bridge-url").value = `ws://${location.hostname}:8082`;
+}
 
 // ---- Connect view ----
 
