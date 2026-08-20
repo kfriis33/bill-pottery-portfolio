@@ -25193,6 +25193,15 @@ const App = ()=>{
                                     fileName: "src/App.js",
                                     lineNumber: 109,
                                     columnNumber: 13
+                                }, undefined),
+                                /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("a", {
+                                    className: "nav-item",
+                                    href: "/math/games",
+                                    children: "Games"
+                                }, void 0, false, {
+                                    fileName: "src/App.js",
+                                    lineNumber: 115,
+                                    columnNumber: 13
                                 }, undefined)
                             ]
                         }, void 0, true, {
@@ -25216,7 +25225,7 @@ const App = ()=>{
                 children: renderContent()
             }, void 0, false, {
                 fileName: "src/App.js",
-                lineNumber: 119,
+                lineNumber: 122,
                 columnNumber: 7
             }, undefined),
             /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("footer", {
@@ -25231,7 +25240,7 @@ const App = ()=>{
                             children: "@w.k.clay"
                         }, void 0, false, {
                             fileName: "src/App.js",
-                            lineNumber: 124,
+                            lineNumber: 127,
                             columnNumber: 64
                         }, undefined),
                         " on Instagram and ",
@@ -25241,19 +25250,19 @@ const App = ()=>{
                             children: "subscribe"
                         }, void 0, false, {
                             fileName: "src/App.js",
-                            lineNumber: 124,
+                            lineNumber: 127,
                             columnNumber: 182
                         }, undefined),
                         "."
                     ]
                 }, void 0, true, {
                     fileName: "src/App.js",
-                    lineNumber: 124,
+                    lineNumber: 127,
                     columnNumber: 9
                 }, undefined)
             }, void 0, false, {
                 fileName: "src/App.js",
-                lineNumber: 123,
+                lineNumber: 126,
                 columnNumber: 7
             }, undefined),
             /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _potteryModalDefault.default), {
@@ -25262,7 +25271,7 @@ const App = ()=>{
                 onClose: closeModal
             }, void 0, false, {
                 fileName: "src/App.js",
-                lineNumber: 127,
+                lineNumber: 130,
                 columnNumber: 7
             }, undefined),
             /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _subscribePopupDefault.default), {
@@ -25273,7 +25282,7 @@ const App = ()=>{
                 }
             }, void 0, false, {
                 fileName: "src/App.js",
-                lineNumber: 133,
+                lineNumber: 136,
                 columnNumber: 7
             }, undefined)
         ]
@@ -25294,7 +25303,7 @@ $RefreshReg$(_c, "App");
   globalThis.$RefreshReg$ = prevRefreshReg;
   globalThis.$RefreshSig$ = prevRefreshSig;
 }
-},{"react/jsx-dev-runtime":"dVPUn","react":"jMk1U","./data/potteryData":"9frsG","./components/PotteryCard":"9naod","./components/PotteryModal":"aBjJG","./components/SubscribePopup":"kgGiu","url:./data/images/bill.jpg":"7pr3Y","./styles/App.css":"goyoj","@parcel/transformer-js/src/esmodule-helpers.js":"jnFvT","@parcel/transformer-react-refresh-wrap/lib/helpers/helpers.js":"7h6Pi","./components/SubscribePage":"Jh4Wh"}],"9frsG":[function(require,module,exports,__globalThis) {
+},{"react/jsx-dev-runtime":"dVPUn","react":"jMk1U","./data/potteryData":"9frsG","./components/PotteryCard":"9naod","./components/PotteryModal":"aBjJG","url:./data/images/bill.jpg":"7pr3Y","./styles/App.css":"goyoj","@parcel/transformer-js/src/esmodule-helpers.js":"jnFvT","@parcel/transformer-react-refresh-wrap/lib/helpers/helpers.js":"7h6Pi","./components/SubscribePopup":"kgGiu","./components/SubscribePage":"Jh4Wh"}],"9frsG":[function(require,module,exports,__globalThis) {
 // Import images as URLs
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
@@ -28382,7 +28391,10 @@ $RefreshReg$(_c, "PotteryModal");
   globalThis.$RefreshReg$ = prevRefreshReg;
   globalThis.$RefreshSig$ = prevRefreshSig;
 }
-},{"react/jsx-dev-runtime":"dVPUn","react":"jMk1U","@parcel/transformer-js/src/esmodule-helpers.js":"jnFvT","@parcel/transformer-react-refresh-wrap/lib/helpers/helpers.js":"7h6Pi"}],"kgGiu":[function(require,module,exports,__globalThis) {
+},{"react/jsx-dev-runtime":"dVPUn","react":"jMk1U","@parcel/transformer-js/src/esmodule-helpers.js":"jnFvT","@parcel/transformer-react-refresh-wrap/lib/helpers/helpers.js":"7h6Pi"}],"7pr3Y":[function(require,module,exports,__globalThis) {
+module.exports = module.bundle.resolve("bill.0f70e42a.jpg") + "?" + Date.now();
+
+},{}],"goyoj":[function() {},{}],"kgGiu":[function(require,module,exports,__globalThis) {
 var $parcel$ReactRefreshHelpers$2380 = require("@parcel/transformer-react-refresh-wrap/lib/helpers/helpers.js");
 $parcel$ReactRefreshHelpers$2380.init();
 var prevRefreshReg = globalThis.$RefreshReg$;
@@ -28550,10 +28562,7 @@ $RefreshReg$(_c, "SubscribePopup");
   globalThis.$RefreshReg$ = prevRefreshReg;
   globalThis.$RefreshSig$ = prevRefreshSig;
 }
-},{"react/jsx-dev-runtime":"dVPUn","react":"jMk1U","@parcel/transformer-js/src/esmodule-helpers.js":"jnFvT","@parcel/transformer-react-refresh-wrap/lib/helpers/helpers.js":"7h6Pi"}],"7pr3Y":[function(require,module,exports,__globalThis) {
-module.exports = module.bundle.resolve("bill.0f70e42a.jpg") + "?" + Date.now();
-
-},{}],"goyoj":[function() {},{}],"Jh4Wh":[function(require,module,exports,__globalThis) {
+},{"react/jsx-dev-runtime":"dVPUn","react":"jMk1U","@parcel/transformer-js/src/esmodule-helpers.js":"jnFvT","@parcel/transformer-react-refresh-wrap/lib/helpers/helpers.js":"7h6Pi"}],"Jh4Wh":[function(require,module,exports,__globalThis) {
 var $parcel$ReactRefreshHelpers$7016 = require("@parcel/transformer-react-refresh-wrap/lib/helpers/helpers.js");
 $parcel$ReactRefreshHelpers$7016.init();
 var prevRefreshReg = globalThis.$RefreshReg$;

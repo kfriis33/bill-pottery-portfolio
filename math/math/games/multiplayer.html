@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Graphwar web prototype — Multiplayer</title>
+    <style>
+      body {
+        background: #1b1f24;
+        color: #e6e6e6;
+        font-family: system-ui, sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+        padding: 24px;
+      }
+      canvas {
+        background: #ffffff;
+        border: 1px solid #444;
+      }
+      section {
+        display: none;
+        flex-direction: column;
+        gap: 10px;
+        width: 100%;
+        max-width: 770px;
+      }
+      section.visible {
+        display: flex;
+      }
+      input,
+      select {
+        font-family: monospace;
+        font-size: 14px;
+        padding: 6px;
+      }
+      button {
+        padding: 6px 12px;
+        cursor: pointer;
+      }
+      #status {
+        min-height: 1.2em;
+        max-width: 770px;
+      }
+      #status.error {
+        color: #ff6b6b;
+      }
+      .row {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      th,
+      td {
+        text-align: left;
+        padding: 6px 8px;
+        border-bottom: 1px solid #333;
+      }
+      .angle-controls {
+        display: none;
+        gap: 4px;
+        align-items: center;
+      }
+      .angle-controls.visible {
+        display: flex;
+      }
+      #chat-log {
+        height: 100px;
+        overflow-y: auto;
+        background: #12151a;
+        border: 1px solid #333;
+        padding: 6px;
+        font-size: 13px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1 style="margin: 0; font-size: 1.1rem">Graphwar web prototype — Multiplayer</h1>
+
+    <section id="connect-view" class="visible">
+      <div class="row">
+        <label for="bridge-url">Bridge URL</label>
+        <input id="bridge-url" type="text" value="wss://ws.williamkuenne.art" />
+      </div>
+      <div class="row">
+        <label for="name-input">Name</label>
+        <input id="name-input" type="text" placeholder="your name" value="Player" />
+        <button id="connect-button">Connect</button>
+      </div>
+    </section>
+
+    <section id="lobby-view">
+      <h2 style="margin: 0; font-size: 1rem">Rooms</h2>
+      <table id="room-table">
+        <thead>
+          <tr>
+            <th>Room</th>
+            <th>Players</th>
+            <th>Mode</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="room-table-body"></tbody>
+      </table>
+    </section>
+
+    <section id="pregame-view">
+      <h2 style="margin: 0; font-size: 1rem">Pre-game</h2>
+      <table id="player-table">
+        <thead>
+          <tr>
+            <th>Player</th>
+            <th>Team</th>
+            <th>Soldiers</th>
+            <th>Ready</th>
+          </tr>
+        </thead>
+        <tbody id="player-table-body"></tbody>
+      </table>
+      <div class="row">
+        <button id="switch-team">Switch Team</button>
+        <button id="add-soldier">+ Soldier</button>
+        <button id="remove-soldier">- Soldier</button>
+        <label><input id="ready-checkbox" type="checkbox" /> Ready</label>
+      </div>
+      <div id="chat-log"></div>
+      <div class="row">
+        <input id="chat-input" type="text" placeholder="chat..." style="flex: 1" />
+        <button id="chat-send">Send</button>
+      </div>
+    </section>
+
+    <section id="game-view">
+      <canvas id="plane" width="770" height="450"></canvas>
+      <div class="row">
+        <span id="func-label">y =</span>
+        <input id="function-input" type="text" placeholder="e.g. (x^2)/50" style="flex: 1" />
+        <span class="angle-controls" id="angle-controls">
+          <button id="angle-down">&darr;</button>
+          <span id="angle-value">0&deg;</span>
+          <button id="angle-up">&uarr;</button>
+        </span>
+        <button id="fire">Fire</button>
+      </div>
+    </section>
+
+    <div id="status"></div>
+
+    <script type="module" src="./src/multiplayer.js"></script>
+  </body>
+</html>
