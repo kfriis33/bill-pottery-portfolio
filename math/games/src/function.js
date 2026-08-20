@@ -40,11 +40,14 @@ function toGameY(screenY) {
   return (PLANE_GAME_LENGTH * (-screenY + PLANE_HEIGHT / 2)) / PLANE_LENGTH;
 }
 
-function toScreenX(gameX) {
+// Exported for GraphPlane's grid-line rendering, so grid spacing lines up
+// with the same game-unit coordinate system a fired function is graphed in
+// (see graphPlane.js's _drawBackground), rather than an arbitrary pixel grid.
+export function toScreenX(gameX) {
   return (PLANE_LENGTH * gameX) / PLANE_GAME_LENGTH + PLANE_LENGTH / 2;
 }
 
-function toScreenY(gameY) {
+export function toScreenY(gameY) {
   return (-PLANE_LENGTH * gameY) / PLANE_GAME_LENGTH + PLANE_HEIGHT / 2;
 }
 

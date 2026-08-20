@@ -3,11 +3,15 @@
 // detection by reading pixel color; an HTML canvas + getImageData is the
 // direct equivalent, so this is a close 1:1 port rather than a rewrite.
 //
-// Simplification: the real game generates terrain server-side (in
-// GraphServer, not ported here) with logic that keeps circles clear of
-// soldier spawn points. This prototype only reproduces the circle
-// count/size distribution (see randomCircles below), not the no-overlap
-// placement — fine for a rendering/physics prototype, not for real terrain.
+// Simplification: this only reproduces the circle count/size distribution
+// (see randomCircles below), not any no-overlap placement — turns out
+// neither does the real game (verified against generateCircles() in
+// GraphServer.java: plain uniform-random placement, no spawn-clearing
+// logic), so a circle landing on top of a soldier's spawn is a real
+// upstream gap too, not just a port simplification. clearSpawnPoints below
+// fixes it client-side after the fact instead, which works the same way
+// whether the circles came from randomCircles() (sandbox) or a server
+// broadcast (multiplayer, where terrain isn't ours to generate).
 
 import {
   PLANE_LENGTH,
@@ -16,7 +20,12 @@ import {
   CIRCLE_STANDARD_DEVIATION,
   NUM_CIRCLES_MEAN_VALUE,
   NUM_CIRCLES_STANDARD_DEVIATION,
+  SOLDIER_RADIUS,
 } from "./constants.js";
+
+// Extra breathing room beyond just-not-touching, so a soldier doesn't spawn
+// wedged right up against an obstacle's edge either.
+const SPAWN_CLEARANCE_MARGIN = 8;
 
 function gaussianRandom() {
   let u = 0;
@@ -27,7 +36,15 @@ function gaussianRandom() {
 }
 
 export class Obstacle {
-  constructor(circles) {
+  // `hitsToDestroy` is only meaningful for teaching levels (see levels.js'
+  // obstacleHitsToDestroy): null (the default) preserves today's behavior,
+  // where a hit only ever punches a small cosmetic hole exactly where the
+  // shot landed (via explodePoint) and a circle otherwise blocks forever.
+  // When set, registerHit() additionally tracks a hit count per circle and
+  // opens a real lane through the *entire* circle once it's exhausted, so a
+  // straight line is never permanently walled off the way an unlucky single
+  // hit could otherwise leave it.
+  constructor(circles, { hitsToDestroy = null } = {}) {
     this.canvas = document.createElement("canvas");
     this.canvas.width = PLANE_LENGTH;
     this.canvas.height = PLANE_HEIGHT;
@@ -42,6 +59,9 @@ export class Obstacle {
       this.ctx.arc(circle.x, circle.y, circle.radius, 0, Math.PI * 2);
       this.ctx.fill();
     }
+
+    this.hitsToDestroy = hitsToDestroy;
+    this.circles = circles.map((circle) => ({ ...circle, hp: hitsToDestroy, destroyed: false }));
 
     this.expX = 0;
     this.expY = 0;
@@ -65,6 +85,22 @@ export class Obstacle {
     return circles;
   }
 
+  // Drops any circle that would overlap a soldier's spawn point (with a
+  // small margin beyond just-not-touching). Applied identically on every
+  // client to the same already-shared circle list — deterministic
+  // filtering, not a different terrain layout, so nothing needs to go over
+  // the wire to stay in sync in multiplayer.
+  static clearSpawnPoints(circles, soldiers) {
+    return circles.filter((circle) =>
+      soldiers.every((soldier) => {
+        const dx = soldier.x - circle.x;
+        const dy = soldier.y - circle.y;
+        const clearance = circle.radius + SOLDIER_RADIUS + SPAWN_CLEARANCE_MARGIN;
+        return dx * dx + dy * dy >= clearance * clearance;
+      }),
+    );
+  }
+
   collidePoint(x, y) {
     if (x < 0 || x >= PLANE_LENGTH) return true;
     if (y < 0 || y >= PLANE_HEIGHT) return true;
@@ -84,6 +120,32 @@ export class Obstacle {
     this.ctx.beginPath();
     this.ctx.arc(this.expX, this.expY, this.expRadius, 0, Math.PI * 2);
     this.ctx.fill();
+  }
+
+  // Finds the live circle (if any) containing (x, y), decrements its hit
+  // count, and once it reaches 0 clears that circle's entire area — not
+  // just the small explosion-radius hole explodePoint() already punched.
+  // No-op when this Obstacle wasn't built with hitsToDestroy.
+  registerHit(x, y) {
+    if (this.hitsToDestroy === null) return;
+
+    for (const circle of this.circles) {
+      if (circle.destroyed) continue;
+
+      const dx = x - circle.x;
+      const dy = y - circle.y;
+      if (dx * dx + dy * dy > circle.radius * circle.radius) continue;
+
+      circle.hp -= 1;
+      if (circle.hp <= 0) {
+        circle.destroyed = true;
+        this.ctx.fillStyle = "white";
+        this.ctx.beginPath();
+        this.ctx.arc(circle.x, circle.y, circle.radius, 0, Math.PI * 2);
+        this.ctx.fill();
+      }
+      break;
+    }
   }
 
   getCanvas() {

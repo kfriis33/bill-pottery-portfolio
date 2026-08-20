@@ -17,6 +17,7 @@
 import { Protocol, javaUrlDecode, javaUrlEncode } from "./netProtocol.js";
 import { LineSocket } from "./lineSocket.js";
 import * as Constants from "./constants.js";
+import { getLevel, LEVEL_SYNC_PREFIX } from "./levels.js";
 
 function makeSoldierSlot() {
   return { x: 0, y: 0, angle: 0, alive: false, exploding: false, timeExplodingStarted: 0, killPosition: 0 };
@@ -71,10 +72,12 @@ export class RoomClient {
     this.gameState = Constants.PRE_GAME;
     this.obstacleCircles = [];
     this.currentTurnPlayerId = null;
+    this.level = null; // teaching-level restriction, synced via chat piggyback — see setLevel/_handleLine
 
     this.onPlayersChanged = () => {};
     this.onModeChanged = () => {};
     this.onLeader = () => {};
+    this.onLevelChanged = () => {}; // (level) — level is null for freeplay
     this.onChat = () => {};
     this.onCountdown = () => {};
     this.onGameStart = () => {};
@@ -121,6 +124,16 @@ export class RoomClient {
 
   sendChat(playerId, message) {
     this.socket.send(`${Protocol.CHAT_MSG}&${playerId}&${javaUrlEncode(message)}`);
+  }
+
+  // No dedicated wire message exists for arbitrary room state, so this
+  // piggybacks on chat (see LEVEL_SYNC_PREFIX in levels.js) — the server
+  // just relays it to everyone in the room like any other chat line, and
+  // _handleLine below recognizes and applies it instead of surfacing it as
+  // a visible chat message (including on the sender's own client, via the
+  // server's echo-back — the same trust model already used for FIRE_FUNC).
+  setLevel(playerId, levelId) {
+    this.sendChat(playerId, `${LEVEL_SYNC_PREFIX}${levelId}`);
   }
 
   fireFunction(playerId, functionString) {
@@ -245,7 +258,15 @@ export class RoomClient {
 
       case Protocol.CHAT_MSG: {
         const [, playerId, message] = fields;
-        this.onChat(Number(playerId), javaUrlDecode(message));
+        const decoded = javaUrlDecode(message);
+
+        if (decoded.startsWith(LEVEL_SYNC_PREFIX)) {
+          this.level = getLevel(Number(decoded.slice(LEVEL_SYNC_PREFIX.length)));
+          this.onLevelChanged(this.level);
+          break;
+        }
+
+        this.onChat(Number(playerId), decoded);
         break;
       }
 

@@ -40,8 +40,10 @@ import {
 } from "./constants.js";
 import { Obstacle } from "./obstacle.js";
 import { Soldier } from "./soldier.js";
-import { Fn } from "./function.js";
+import { Fn, toScreenX, toScreenY } from "./function.js";
 import { MalformedFunction } from "./tokens.js";
+import { isLinear } from "./functionKind.js";
+import { thinObstacles } from "./levels.js";
 
 const TEAM_COLORS = { [TEAM1]: "#3468c0", [TEAM2]: "#c03434" };
 
@@ -53,6 +55,7 @@ export class GraphPlane {
     this.mode = NORMAL_FUNC;
     this.angle = 0; // player-controlled firing angle, used only in SND_ODE mode
     this.networked = false;
+    this.level = null; // teaching-level restrictions (see levels.js); null = unrestricted freeplay
 
     this.onTurnChange = () => {};
     this.onGameOver = () => {};
@@ -66,11 +69,15 @@ export class GraphPlane {
 
   newMatch() {
     this.networked = false;
-    this.obstacle = new Obstacle(Obstacle.randomCircles());
     this.soldiers = [
       new Soldier(140, PLANE_HEIGHT / 2, TEAM1, TEAM_COLORS[TEAM1]),
       new Soldier(PLANE_LENGTH - 140, PLANE_HEIGHT / 2, TEAM2, TEAM_COLORS[TEAM2]),
     ];
+
+    let circles = Obstacle.clearSpawnPoints(Obstacle.randomCircles(), this.soldiers);
+    circles = thinObstacles(circles, this.level);
+    this.obstacle = new Obstacle(circles, { hitsToDestroy: this.level?.obstacleHitsToDestroy ?? null });
+
     this.currentShooterSoldier = this.soldiers[0];
     this._resetShotState();
     this.gameOver = false;
@@ -83,7 +90,7 @@ export class GraphPlane {
   loadNetworkedMatch(roomClient) {
     this.networked = true;
     this.mode = roomClient.gameMode;
-    this.obstacle = new Obstacle(roomClient.obstacleCircles);
+    this.level = roomClient.level;
 
     this.soldiers = [];
     for (const player of roomClient.players.values()) {
@@ -94,6 +101,15 @@ export class GraphPlane {
         this.soldiers.push(soldier);
       }
     }
+
+    // Neither this port's nor the real upstream Java server's obstacle
+    // generation keeps circles clear of spawn points (see obstacle.js) —
+    // filtered out here instead, identically on every client, since the
+    // circle list and final soldier positions are both already fully known
+    // at this point (this is called once START_GAME has been fully parsed).
+    let circles = Obstacle.clearSpawnPoints(roomClient.obstacleCircles, this.soldiers);
+    circles = thinObstacles(circles, this.level);
+    this.obstacle = new Obstacle(circles, { hitsToDestroy: this.level?.obstacleHitsToDestroy ?? null });
 
     this.currentShooterSoldier = roomClient.getCurrentTurnPlayer()?.getCurrentTurnSoldier() ?? null;
     this._resetShotState();
@@ -115,6 +131,13 @@ export class GraphPlane {
 
   setMode(mode) {
     this.mode = mode;
+  }
+
+  // Sandbox-only setter (networked matches read roomClient.level directly
+  // in loadNetworkedMatch, since that's always the freshest value at the
+  // moment a match actually starts). Takes effect on the next newMatch().
+  setLevel(level) {
+    this.level = level;
   }
 
   setAngle(radians) {
@@ -155,6 +178,10 @@ export class GraphPlane {
 
     try {
       fn = new Fn(functionString);
+
+      if (this.level?.allowedKinds?.includes("linear") && !isLinear(fn.polishFunc)) {
+        return { ok: false, error: `${this.level.label} only allows linear functions, like 2x + 3.` };
+      }
 
       if (mode === NORMAL_FUNC) {
         fn.processFunctionRange(this.obstacle, this.soldiers, shooterSoldier, inverted);
@@ -229,6 +256,7 @@ export class GraphPlane {
 
       this.obstacle.setExplosion(Math.trunc(this.func.lastX), Math.trunc(this.func.lastY), EXPLOSION_RADIUS);
       this.obstacle.explodePoint();
+      this.obstacle.registerHit(Math.trunc(this.func.lastX), Math.trunc(this.func.lastY));
     }
 
     for (const hit of this.func.soldiersHit) {
@@ -299,6 +327,8 @@ export class GraphPlane {
   _drawBackground(ctx) {
     ctx.drawImage(this.obstacle.getCanvas(), 0, 0);
 
+    if (this.level?.showGrid) this._drawGrid(ctx);
+
     ctx.strokeStyle = "#000000";
     ctx.lineWidth = 1;
     ctx.beginPath();
@@ -307,6 +337,42 @@ export class GraphPlane {
     ctx.moveTo(PLANE_LENGTH / 2, 0);
     ctx.lineTo(PLANE_LENGTH / 2, PLANE_HEIGHT);
     ctx.stroke();
+  }
+
+  // Spaced in game units (the same coordinate system a fired function is
+  // graphed in — see toScreenX/toScreenY), not arbitrary pixels, so the grid
+  // actually lines up with what a student typed.
+  _drawGrid(ctx) {
+    const GRID_SPACING_GAME_UNITS = 5;
+
+    ctx.save();
+    ctx.strokeStyle = "#cccccc";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+
+    for (let gx = 0; toScreenX(gx) <= PLANE_LENGTH; gx += GRID_SPACING_GAME_UNITS) {
+      const screenX = toScreenX(gx);
+      ctx.moveTo(screenX, 0);
+      ctx.lineTo(screenX, PLANE_HEIGHT);
+    }
+    for (let gx = -GRID_SPACING_GAME_UNITS; toScreenX(gx) >= 0; gx -= GRID_SPACING_GAME_UNITS) {
+      const screenX = toScreenX(gx);
+      ctx.moveTo(screenX, 0);
+      ctx.lineTo(screenX, PLANE_HEIGHT);
+    }
+    for (let gy = 0; toScreenY(gy) >= 0; gy += GRID_SPACING_GAME_UNITS) {
+      const screenY = toScreenY(gy);
+      ctx.moveTo(0, screenY);
+      ctx.lineTo(PLANE_LENGTH, screenY);
+    }
+    for (let gy = -GRID_SPACING_GAME_UNITS; toScreenY(gy) <= PLANE_HEIGHT; gy -= GRID_SPACING_GAME_UNITS) {
+      const screenY = toScreenY(gy);
+      ctx.moveTo(0, screenY);
+      ctx.lineTo(PLANE_LENGTH, screenY);
+    }
+
+    ctx.stroke();
+    ctx.restore();
   }
 
   _drawSoldiers(ctx) {

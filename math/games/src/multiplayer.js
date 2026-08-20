@@ -13,6 +13,10 @@ import { LobbyClient } from "./lobbyClient.js";
 import { RoomClient } from "./roomClient.js";
 import { GraphPlane } from "./graphPlane.js";
 import { NORMAL_FUNC, FST_ODE, SND_ODE, TEAM2, PUBLIC_ROOM_PORT } from "./constants.js";
+import { LEVELS } from "./levels.js";
+import { PolishNotationFunction } from "./polishNotationFunction.js";
+import { isLinear } from "./functionKind.js";
+import { MalformedFunction } from "./tokens.js";
 
 const views = {
   connect: document.getElementById("connect-view"),
@@ -70,6 +74,31 @@ document.getElementById("connect-button").addEventListener("click", () => {
   lobbyClient.connect(name);
 });
 
+// ---- Level selection (pre-game) ----
+
+const levelSelect = document.getElementById("level-select");
+for (const level of LEVELS) {
+  const option = document.createElement("option");
+  option.value = String(level.id);
+  option.textContent = level.label;
+  levelSelect.appendChild(option);
+}
+
+levelSelect.addEventListener("change", () => {
+  if (!roomClient || roomClient.localPlayerId === null) return;
+  const levelId = levelSelect.value === "" ? -1 : Number(levelSelect.value);
+  roomClient.setLevel(roomClient.localPlayerId, levelId);
+});
+
+// Applies both to our own change (echoed back by the server) and to a
+// level picked by another player in the room — same trust-based sync used
+// for everything else here (see RoomClient.setLevel).
+function refreshLevelUI(level) {
+  levelSelect.value = level ? String(level.id) : "";
+  graphPlane.setLevel(level);
+  setStatus(level ? `Level set to: ${level.label}` : "Level set to: Freeplay (no restrictions).", false);
+}
+
 function renderRoomList(rooms) {
   const tbody = document.getElementById("room-table-body");
   tbody.innerHTML = "";
@@ -101,11 +130,13 @@ function joinRoom(room) {
   roomClient = new RoomClient(bridgeUrl, roomNum);
   roomClient.onOpen = () => {
     roomClient.join(name);
+    refreshLevelUI(null); // reset from whatever the previous room's level was
     showView("pregame");
     setStatus(`Joined ${room.name}.`, false);
   };
   roomClient.onClose = () => setStatus("Disconnected from room.", true);
   roomClient.onPlayersChanged = renderPlayerTable;
+  roomClient.onLevelChanged = refreshLevelUI;
   roomClient.onChat = (playerId, message) => appendChat(roomClient.players.get(playerId)?.name ?? "?", message);
   roomClient.onCountdown = () => setStatus("Game starting soon...", false);
   roomClient.onGameStart = startNetworkedMatch;
@@ -225,6 +256,20 @@ document.getElementById("fire").addEventListener("click", () => {
   }
 
   const functionString = document.getElementById("function-input").value;
+
+  if (roomClient.level?.allowedKinds?.includes("linear")) {
+    try {
+      if (!isLinear(new PolishNotationFunction(functionString))) {
+        setStatus(`${roomClient.level.label} only allows linear functions, like 2x + 3.`, true);
+        return;
+      }
+    } catch (e) {
+      if (!(e instanceof MalformedFunction)) throw e;
+      setStatus(e.message, true);
+      return;
+    }
+  }
+
   roomClient.fireFunction(roomClient.localPlayerId, functionString);
   setStatus(`Fired: ${functionString}`, false);
 });

@@ -1,10 +1,12 @@
 import { GraphPlane } from "./graphPlane.js";
 import { NORMAL_FUNC, FST_ODE, SND_ODE } from "./constants.js";
+import { LEVELS, getLevel } from "./levels.js";
 
 const canvas = document.getElementById("plane");
 const plane = new GraphPlane(canvas);
 
 const modeSelect = document.getElementById("mode");
+const levelSelect = document.getElementById("level-select");
 const functionInput = document.getElementById("function-input");
 const fireButton = document.getElementById("fire");
 const newMatchButton = document.getElementById("new-match");
@@ -39,6 +41,20 @@ modeSelect.addEventListener("change", () => {
   refreshModeUI();
 });
 
+for (const level of LEVELS) {
+  const option = document.createElement("option");
+  option.value = String(level.id);
+  option.textContent = level.label;
+  levelSelect.appendChild(option);
+}
+
+levelSelect.addEventListener("change", () => {
+  plane.setLevel(getLevel(levelSelect.value === "" ? -1 : Number(levelSelect.value)));
+  plane.newMatch();
+  updateAngleDisplay();
+  setStatus(plane.level ? `${plane.level.label} — new match started.` : "New match started.", false);
+});
+
 angleUpButton.addEventListener("click", () => {
   plane.setAngle(plane.angle + ANGLE_STEP);
   updateAngleDisplay();
@@ -63,6 +79,10 @@ document.addEventListener("keydown", (event) => {
 
 fireButton.addEventListener("click", () => {
   const result = plane.fire(functionInput.value);
+  // plane.fire()'s own _computeShot already rejects a non-linear function
+  // under an active level (same check multiplayer.js pre-checks before
+  // sending over the wire) — no separate check needed here since the
+  // sandbox has no network round-trip to avoid.
 
   if (!result.ok) {
     setStatus(result.error, true);
