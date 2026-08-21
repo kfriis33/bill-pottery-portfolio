@@ -60,6 +60,7 @@ export class GraphPlane {
     this.onTurnChange = () => {};
     this.onGameOver = () => {};
     this.onReadyForNextTurn = () => {};
+    this.onSoldierDied = () => {}; // (victimSoldier, shooterSoldier) — for stats self-reporting, see multiplayer.js
 
     this._rafHandle = null;
     this._boundTick = this._tick.bind(this);
@@ -94,10 +95,18 @@ export class GraphPlane {
 
     this.soldiers = [];
     for (const player of roomClient.players.values()) {
+      const skin = roomClient.skinsByPlayerId.get(player.id);
+
       for (let i = 0; i < player.numSoldiers; i++) {
         const soldier = player.soldiers[i];
         soldier.color = TEAM_COLORS[player.team] ?? "#888888";
         soldier.team = player.team;
+        soldier.ownerId = player.id;
+        // Cosmetic-only override layered on top of the team color (see
+        // skins.js) — null/undefined falls back to it via the ?? in
+        // _drawSoldiers/_startShotAnimation.
+        soldier.skinColor = skin?.soldierColor ?? null;
+        soldier.artilleryColor = skin?.artilleryColor ?? null;
         this.soldiers.push(soldier);
       }
     }
@@ -203,7 +212,8 @@ export class GraphPlane {
   _startShotAnimation(fn, shooterSoldier) {
     shooterSoldier.function = fn.strFunc;
     shooterSoldier.angle = fn.fireAngle;
-    fn.shooterColor = shooterSoldier.color;
+    fn.shooterColor = shooterSoldier.artilleryColor ?? shooterSoldier.color;
+    fn.shooterSoldier = shooterSoldier; // kept for onSoldierDied's kill attribution
 
     this.func = fn;
     this.drawingFunction = true;
@@ -272,6 +282,7 @@ export class GraphPlane {
         soldier.exploding = true;
         soldier.timeExplodingStarted = performance.now();
         soldier.alive = false;
+        this.onSoldierDied(soldier, this.func.shooterSoldier);
       }
     }
 
@@ -380,7 +391,7 @@ export class GraphPlane {
       if (!soldier.alive && !soldier.exploding) continue;
 
       ctx.beginPath();
-      ctx.fillStyle = soldier.exploding ? "#888888" : soldier.color;
+      ctx.fillStyle = soldier.exploding ? "#888888" : soldier.skinColor ?? soldier.color;
       ctx.arc(soldier.x, soldier.y, SOLDIER_RADIUS, 0, Math.PI * 2);
       ctx.fill();
 

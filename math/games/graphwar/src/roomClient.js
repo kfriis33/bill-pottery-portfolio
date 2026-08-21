@@ -18,6 +18,10 @@ import { Protocol, javaUrlDecode, javaUrlEncode } from "./netProtocol.js";
 import { LineSocket } from "./lineSocket.js";
 import * as Constants from "./constants.js";
 import { getLevel, LEVEL_SYNC_PREFIX } from "./levels.js";
+import { STATS_SYNC_PREFIX } from "./stats.js";
+import { MATCH_SYNC_PREFIX } from "./matchmaking.js";
+
+const SKIN_SYNC_PREFIX = "@@SKIN@@:";
 
 function makeSoldierSlot() {
   return { x: 0, y: 0, angle: 0, alive: false, exploding: false, timeExplodingStarted: 0, killPosition: 0 };
@@ -73,11 +77,13 @@ export class RoomClient {
     this.obstacleCircles = [];
     this.currentTurnPlayerId = null;
     this.level = null; // teaching-level restriction, synced via chat piggyback — see setLevel/_handleLine
+    this.skinsByPlayerId = new Map(); // id -> { soldierColor, artilleryColor }, synced via chat piggyback
 
     this.onPlayersChanged = () => {};
     this.onModeChanged = () => {};
     this.onLeader = () => {};
     this.onLevelChanged = () => {}; // (level) — level is null for freeplay
+    this.onMatchFormed = () => {}; // ({ team1: [id, id], team2: [id, id] })
     this.onChat = () => {};
     this.onCountdown = () => {};
     this.onGameStart = () => {};
@@ -118,6 +124,16 @@ export class RoomClient {
     this.socket.send(`${Protocol.SET_TEAM}&${otherTeam}&${playerId}`);
   }
 
+  // Explicit assignment (vs. switchSide's toggle-relative-to-current) — for
+  // the leader's auto-matchmaking (matchmaking.js), which needs to put a
+  // specific player on a specific team regardless of their current one.
+  // Works on any playerId thanks to the server's leader-bypass on SET_TEAM
+  // (confirmed in GraphServer.java) — a non-leader sending this for anyone
+  // but themselves is just silently ignored server-side.
+  setTeam(playerId, team) {
+    this.socket.send(`${Protocol.SET_TEAM}&${team}&${playerId}`);
+  }
+
   setReady(playerId, ready) {
     this.socket.send(`${Protocol.SET_READY}&${playerId}&${ready ? 1 : 0}`);
   }
@@ -134,6 +150,35 @@ export class RoomClient {
   // server's echo-back — the same trust model already used for FIRE_FUNC).
   setLevel(playerId, levelId) {
     this.sendChat(playerId, `${LEVEL_SYNC_PREFIX}${levelId}`);
+  }
+
+  // Self-reported only — each player reports events about themselves (their
+  // own death, a kill they personally scored, a win their own team got),
+  // never on someone else's behalf, so there's nothing to dedupe. See
+  // stats.js and the matching peek in proxy/bridge.mjs, which is what
+  // actually tallies these into the leaderboard — this client and every
+  // other client just filter the sentinel out of visible chat.
+  reportStat(playerId, event) {
+    const name = this.players.get(playerId)?.name ?? "";
+    this.sendChat(playerId, `${STATS_SYNC_PREFIX}${event}:${name}`);
+  }
+
+  // Cosmetic-only skin choice, broadcast so every client (not just the
+  // chooser) renders it — see skins.js.
+  reportSkin(playerId, soldierColor, artilleryColor) {
+    this.sendChat(playerId, `${SKIN_SYNC_PREFIX}${JSON.stringify({ soldierColor, artilleryColor })}`);
+  }
+
+  // Leader-only in practice (see matchmaking.js) — announces a formed
+  // match (just team assignments, no countdown timing — see
+  // SERVER_START_GAME_DELAY_MS for why) to everyone in the room. Every
+  // client, including the leader's own via echo, reacts identically: the 4
+  // named players self-ready (SET_READY has no leader-bypass on the
+  // server, unlike SET_TEAM/ADD_SOLDIER/REMOVE_SOLDIER, so each must do
+  // this for themselves) and note who their teammate is for display once
+  // the server's own START_COUNTDOWN broadcast actually shows the overlay.
+  broadcastMatchFormed(playerId, match) {
+    this.sendChat(playerId, `${MATCH_SYNC_PREFIX}${JSON.stringify(match)}`);
   }
 
   fireFunction(playerId, functionString) {
@@ -165,6 +210,30 @@ export class RoomClient {
     }
 
     return !team1Alive || !team2Alive;
+  }
+
+  // Same scan as checkGameFinished(), but returns which team actually
+  // survived — needed at the exact moment a game is detected as finished,
+  // since GAME_FINISHED's own handler resets ready/gameState with no
+  // winner info bundled in, and soldier-alive state may already reflect
+  // the next match's reset by the time it arrives (see stats.js usage in
+  // multiplayer.js's onReadyForNextTurn, called right alongside
+  // checkGameFinished() itself rather than from the GAME_FINISHED handler).
+  getWinningTeam() {
+    let team1Alive = false;
+    let team2Alive = false;
+
+    for (const player of this.players.values()) {
+      for (let i = 0; i < player.numSoldiers; i++) {
+        if (!player.soldiers[i].alive) continue;
+        if (player.team === Constants.TEAM1) team1Alive = true;
+        else team2Alive = true;
+      }
+    }
+
+    if (team1Alive && !team2Alive) return Constants.TEAM1;
+    if (team2Alive && !team1Alive) return Constants.TEAM2;
+    return null; // draw (both/neither alive) — no stat to report
   }
 
   reportGameFinished() {
@@ -263,6 +332,30 @@ export class RoomClient {
         if (decoded.startsWith(LEVEL_SYNC_PREFIX)) {
           this.level = getLevel(Number(decoded.slice(LEVEL_SYNC_PREFIX.length)));
           this.onLevelChanged(this.level);
+          break;
+        }
+
+        // Stats reports have no client-side effect at all — the bridge is
+        // the one tallying them (see proxy/bridge.mjs); every client just
+        // filters them out of visible chat, same as the others here.
+        if (decoded.startsWith(STATS_SYNC_PREFIX)) break;
+
+        if (decoded.startsWith(SKIN_SYNC_PREFIX)) {
+          try {
+            const { soldierColor, artilleryColor } = JSON.parse(decoded.slice(SKIN_SYNC_PREFIX.length));
+            this.skinsByPlayerId.set(Number(playerId), { soldierColor, artilleryColor });
+          } catch {
+            // Malformed payload — ignore, cosmetic-only.
+          }
+          break;
+        }
+
+        if (decoded.startsWith(MATCH_SYNC_PREFIX)) {
+          try {
+            this.onMatchFormed(JSON.parse(decoded.slice(MATCH_SYNC_PREFIX.length)));
+          } catch {
+            // Malformed payload — ignore rather than crash the room connection.
+          }
           break;
         }
 

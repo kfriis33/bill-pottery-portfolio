@@ -77,6 +77,36 @@
         padding: 6px;
         font-size: 13px;
       }
+      .back-button {
+        background: none;
+        border: 1px solid #444;
+        color: #aaa;
+        align-self: flex-start;
+      }
+      #countdown-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(10, 12, 16, 0.92);
+        z-index: 10;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+      }
+      #countdown-overlay.visible {
+        display: flex;
+      }
+      #countdown-number {
+        font-size: 30vh;
+        font-weight: 900;
+        line-height: 1;
+        color: #f2c200;
+      }
+      #countdown-teammate {
+        font-size: 1.4rem;
+        color: #e6e6e6;
+      }
     </style>
   </head>
   <body>
@@ -90,11 +120,13 @@
     </section>
 
     <section id="classroom-select-view">
+      <button class="back-button" id="back-from-classroom-select">&larr; Back</button>
       <h2 style="margin: 0; font-size: 1rem">Choose your classroom</h2>
       <div class="row" id="classroom-buttons"></div>
     </section>
 
     <section id="connect-view">
+      <button class="back-button" id="back-from-connect">&larr; Back</button>
       <div class="row">
         <label for="bridge-url">Bridge URL</label>
         <input id="bridge-url" type="text" value="wss://ws.williamkuenne.art" />
@@ -107,6 +139,7 @@
     </section>
 
     <section id="lobby-view">
+      <button class="back-button" id="back-from-lobby">&larr; Back</button>
       <h2 style="margin: 0; font-size: 1rem">Rooms</h2>
       <table id="room-table">
         <thead>
@@ -122,6 +155,7 @@
     </section>
 
     <section id="pregame-view">
+      <button class="back-button" id="back-from-pregame">&larr; Back</button>
       <h2 style="margin: 0; font-size: 1rem">Pre-game</h2>
       <table id="player-table">
         <thead>
@@ -157,6 +191,33 @@
       </div>
     </section>
 
+    <section id="waiting-view">
+      <button class="back-button" id="back-from-waiting">&larr; Back</button>
+      <h2 style="margin: 0; font-size: 1rem">Classroom waiting room</h2>
+      <div id="waiting-status"></div>
+
+      <div class="row">
+        <label for="soldier-skin-select">Soldier skin</label>
+        <select id="soldier-skin-select"></select>
+        <label for="artillery-skin-select">Artillery skin</label>
+        <select id="artillery-skin-select"></select>
+      </div>
+
+      <h3 style="margin: 8px 0 0; font-size: 0.95rem">Leaderboard</h3>
+      <table id="leaderboard-table">
+        <thead>
+          <tr>
+            <th>Player</th>
+            <th>Kills</th>
+            <th>Deaths</th>
+            <th>K/D</th>
+            <th>Wins</th>
+          </tr>
+        </thead>
+        <tbody id="leaderboard-table-body"></tbody>
+      </table>
+    </section>
+
     <section id="game-view">
       <canvas id="plane" width="770" height="450"></canvas>
       <div class="row">
@@ -172,6 +233,11 @@
     </section>
 
     <div id="status"></div>
+
+    <div id="countdown-overlay">
+      <div id="countdown-number"></div>
+      <div id="countdown-teammate"></div>
+    </div>
 
     <script type="module" src="./src/multiplayer.js"></script>
   </body>

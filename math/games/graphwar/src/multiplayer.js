@@ -12,18 +12,21 @@
 import { LobbyClient } from "./lobbyClient.js";
 import { RoomClient } from "./roomClient.js";
 import { GraphPlane } from "./graphPlane.js";
-import { NORMAL_FUNC, FST_ODE, SND_ODE, TEAM1, TEAM2, PUBLIC_ROOM_PORT } from "./constants.js";
+import { NORMAL_FUNC, FST_ODE, SND_ODE, TEAM1, TEAM2, PUBLIC_ROOM_PORT, PRE_GAME } from "./constants.js";
 import { LEVELS, getLevel } from "./levels.js";
 import { CLASSROOMS } from "./classrooms.js";
+import { PolishNotationFunction } from "./polishNotationFunction.js";
+import { isLinear } from "./functionKind.js";
+import { MalformedFunction } from "./tokens.js";
+import { selectMatch, SERVER_START_GAME_DELAY_MS } from "./matchmaking.js";
+import { SOLDIER_SKINS, ARTILLERY_SKINS, getSoldierSkin, setSoldierSkin, getArtillerySkin, setArtillerySkin } from "./skins.js";
+import { StatEvent } from "./stats.js";
 
 // Hardcoded for now — a teacher-configurable classroom is future work (per-
 // classroom codes, room reservations, teacher accounts, etc.), out of scope
 // today. "Classroom" mode just locks every room a player joins to this one
 // ruleset instead of leaving it open to manual selection like public mode.
 const CLASSROOM_LEVEL_ID = 0;
-import { PolishNotationFunction } from "./polishNotationFunction.js";
-import { isLinear } from "./functionKind.js";
-import { MalformedFunction } from "./tokens.js";
 
 const views = {
   landing: document.getElementById("landing-view"),
@@ -31,6 +34,7 @@ const views = {
   connect: document.getElementById("connect-view"),
   lobby: document.getElementById("lobby-view"),
   pregame: document.getElementById("pregame-view"),
+  waiting: document.getElementById("waiting-view"),
   game: document.getElementById("game-view"),
 };
 
@@ -50,7 +54,38 @@ let roomClient = null;
 let bridgeUrl = "";
 let gameplayMode = "public"; // "public" | "classroom" — picked on the landing screen
 let classroomLevelSent = false;
+let classroomSkinSent = false;
 let selectedClassroom = null;
+let pendingMatch = null; // leader-only orchestration state — see checkMatchmaking()
+let matchQueue = []; // leader-local matchmaking priority order — see checkMatchmaking()
+let myTeammateNameForCountdown = null; // set by handleMatchFormed, consumed once by the next onCountdown
+let countdownRaf = null;
+let leaderboardTimer = null;
+
+// ---- Back buttons ----
+
+document.getElementById("back-from-classroom-select").addEventListener("click", () => showView("landing"));
+
+document.getElementById("back-from-connect").addEventListener("click", () => {
+  showView(gameplayMode === "classroom" ? "classroomSelect" : "landing");
+});
+
+document.getElementById("back-from-lobby").addEventListener("click", () => {
+  lobbyClient?.disconnect();
+  showView("connect");
+});
+
+document.getElementById("back-from-pregame").addEventListener("click", () => {
+  roomClient?.disconnect();
+  showView("lobby");
+});
+
+document.getElementById("back-from-waiting").addEventListener("click", () => {
+  stopLeaderboardPolling();
+  pendingMatch = null;
+  roomClient?.disconnect();
+  showView("classroomSelect");
+});
 
 // ---- Landing view ----
 
@@ -146,6 +181,216 @@ function refreshLevelUI(level) {
   setStatus(level ? `Level set to: ${level.label}` : "Level set to: Freeplay (no restrictions).", false);
 }
 
+// ---- Skin selection (classroom waiting room) ----
+// Dummy catalog for now (see skins.js) — cosmetic only, no real art. Choice
+// persists per-browser (localStorage, no account system) and is broadcast
+// to the room so other players see it too, same chat-piggyback trust model
+// as everything else here.
+
+const soldierSkinSelect = document.getElementById("soldier-skin-select");
+const artillerySkinSelect = document.getElementById("artillery-skin-select");
+
+for (const skin of SOLDIER_SKINS) {
+  const option = document.createElement("option");
+  option.value = skin.id;
+  option.textContent = skin.label;
+  soldierSkinSelect.appendChild(option);
+}
+for (const skin of ARTILLERY_SKINS) {
+  const option = document.createElement("option");
+  option.value = skin.id;
+  option.textContent = skin.label;
+  artillerySkinSelect.appendChild(option);
+}
+
+soldierSkinSelect.value = getSoldierSkin().id;
+artillerySkinSelect.value = getArtillerySkin().id;
+
+function reportCurrentSkin() {
+  if (!roomClient || roomClient.localPlayerId === null) return;
+  roomClient.reportSkin(roomClient.localPlayerId, getSoldierSkin().color, getArtillerySkin().color);
+}
+
+soldierSkinSelect.addEventListener("change", () => {
+  setSoldierSkin(soldierSkinSelect.value);
+  reportCurrentSkin();
+});
+
+artillerySkinSelect.addEventListener("change", () => {
+  setArtillerySkin(artillerySkinSelect.value);
+  reportCurrentSkin();
+});
+
+// ---- Leaderboard (classroom waiting room) ----
+// Polls the bridge's stats tally (proxy/bridge.mjs) — the bridge, not any
+// client, is the source of truth here, since kill/death/win detection is
+// entirely client-side and self-reported (see stats.js); polling avoids
+// needing every client to independently reconstruct the same tally.
+
+function statsUrl(roomNum) {
+  const httpBase = bridgeUrl.replace(/^wss:/, "https:").replace(/^ws:/, "http:");
+  return `${httpBase}/stats/${roomNum}`;
+}
+
+function renderLeaderboard(data) {
+  const tbody = document.getElementById("leaderboard-table-body");
+  tbody.innerHTML = "";
+
+  const rows = Object.entries(data).sort(([, a], [, b]) => b.wins - a.wins || b.kills - a.kills);
+  for (const [name, s] of rows) {
+    const kd = s.deaths > 0 ? (s.kills / s.deaths).toFixed(2) : s.kills.toFixed(2);
+    const row = document.createElement("tr");
+    row.innerHTML = `<td>${name}</td><td>${s.kills}</td><td>${s.deaths}</td><td>${kd}</td><td>${s.wins}</td>`;
+    tbody.appendChild(row);
+  }
+}
+
+function startLeaderboardPolling(roomNum) {
+  stopLeaderboardPolling();
+
+  const poll = async () => {
+    try {
+      const response = await fetch(statsUrl(roomNum));
+      renderLeaderboard(await response.json());
+    } catch {
+      // Bridge unreachable this tick — leaderboard just doesn't update, not fatal.
+    }
+  };
+
+  poll();
+  leaderboardTimer = setInterval(poll, 4000);
+}
+
+function stopLeaderboardPolling() {
+  clearInterval(leaderboardTimer);
+  leaderboardTimer = null;
+}
+
+// ---- Auto-matchmaking (classroom waiting room, leader-orchestrated) ----
+// Runs only on whichever client currently holds room leadership — the
+// server guarantees exactly one at a time (the oldest still-connected
+// connection), so this needs no separate election. See matchmaking.js for
+// why the leader can assign teams/soldier counts for everyone but each
+// player still has to ready themselves up.
+
+// Repeatedly sending ADD_SOLDIER/REMOVE_SOLDIER based on the local
+// (possibly stale) count on every single onPlayersChanged tick massively
+// over/undershoots — each of the leader's own commands re-triggers this
+// same event before its own echo has updated anything, so many redundant
+// commands land in flight at once. Fix: only send one adjustment per
+// distinct observed count per player, and wait for it to actually change
+// (via a fresh echo) before sending another.
+const soldierAdjustmentBaseline = new Map(); // id -> numSoldiers value when we last sent an adjustment for it
+
+function normalizeSoldierCounts(playerIds, target) {
+  for (const id of playerIds) {
+    const player = roomClient.players.get(id);
+    if (!player) continue;
+
+    if (player.numSoldiers === target) {
+      soldierAdjustmentBaseline.delete(id);
+      continue;
+    }
+    if (soldierAdjustmentBaseline.get(id) === player.numSoldiers) continue; // already sent, still waiting for it to land
+
+    soldierAdjustmentBaseline.set(id, player.numSoldiers);
+    if (player.numSoldiers > target) roomClient.removeSoldier(id);
+    else roomClient.addSoldier(id);
+  }
+}
+
+function checkMatchmaking() {
+  if (gameplayMode !== "classroom" || !roomClient?.isLeader) return;
+  if (roomClient.gameState !== PRE_GAME) return;
+
+  const currentIds = [...roomClient.players.keys()];
+  matchQueue = matchQueue.filter((id) => currentIds.includes(id));
+  for (const id of currentIds) {
+    if (!matchQueue.includes(id)) matchQueue.push(id); // new arrivals join the back of the line
+  }
+
+  if (pendingMatch && !pendingMatch.ids.every((id) => roomClient.players.has(id))) {
+    pendingMatch = null; // someone in the forming/announced match left — start over
+  }
+
+  if (!pendingMatch) {
+    const match = selectMatch(matchQueue);
+    if (!match) {
+      // Fewer than 4 waiting — drive everyone present down to 0 soldiers
+      // and let them self-ready as bystanders (see renderPlayerTable), so
+      // nobody sitting idle ever blocks the server's all-ready gate for
+      // whoever else eventually gets matched.
+      normalizeSoldierCounts(currentIds, 0);
+      return;
+    }
+
+    const matchedIds = [...match.team1, ...match.team2];
+    for (const id of match.team1) roomClient.setTeam(id, TEAM1);
+    for (const id of match.team2) roomClient.setTeam(id, TEAM2);
+    pendingMatch = { ids: matchedIds, team1: match.team1, team2: match.team2, announced: false };
+  }
+
+  const bystanderIds = currentIds.filter((id) => !pendingMatch.ids.includes(id));
+  normalizeSoldierCounts(pendingMatch.ids, 1);
+  normalizeSoldierCounts(bystanderIds, 0);
+
+  const settled =
+    pendingMatch.ids.every((id) => roomClient.players.get(id)?.numSoldiers === 1) &&
+    bystanderIds.every((id) => roomClient.players.get(id)?.numSoldiers === 0);
+
+  // ADD_SOLDIER/REMOVE_SOLDIER reset EVERYONE's ready flag server-side
+  // (setEveryoneNotReady() in GraphServer.java) — so broadcasting match-
+  // formed (which triggers the 4 matched players' self-ready) is only
+  // durable once NOTHING is still being adjusted for anyone in the room,
+  // not just the 4 being matched. A late-arriving bystander needing its
+  // own trim-to-0 would otherwise wipe an already-readied match right
+  // out from under it. `announced` flips back to false whenever settled
+  // goes false again, so a fresh announcement (idempotent — matched
+  // players just self-ready again) follows the next time things settle.
+  if (!settled) {
+    pendingMatch.announced = false;
+    return;
+  }
+  if (pendingMatch.announced) return;
+
+  pendingMatch.announced = true;
+  matchQueue = [...matchQueue.filter((id) => !pendingMatch.ids.includes(id)), ...pendingMatch.ids];
+  roomClient.broadcastMatchFormed(roomClient.localPlayerId, { team1: pendingMatch.team1, team2: pendingMatch.team2 });
+}
+
+// ---- Synchronized countdown overlay ----
+// Timed off the server's own START_COUNTDOWN broadcast (roomClient.js's
+// onCountdown) rather than a separately-invented deadline — see
+// SERVER_START_GAME_DELAY_MS in matchmaking.js for why that's the more
+// robust choice: it's a real event every client already receives
+// together, not a second clock that could skew from the first.
+
+function showCountdown(durationMs, teammateName) {
+  const overlay = document.getElementById("countdown-overlay");
+  const numberEl = document.getElementById("countdown-number");
+  document.getElementById("countdown-teammate").textContent = teammateName
+    ? `You're playing with: ${teammateName}`
+    : "Get ready!";
+  overlay.classList.add("visible");
+
+  const deadline = Date.now() + durationMs;
+
+  function tick() {
+    const remaining = Math.ceil((deadline - Date.now()) / 1000);
+    numberEl.textContent = remaining > 0 ? String(remaining) : "GO!";
+    countdownRaf = requestAnimationFrame(tick);
+  }
+
+  cancelAnimationFrame(countdownRaf);
+  tick();
+}
+
+function hideCountdown() {
+  document.getElementById("countdown-overlay").classList.remove("visible");
+  cancelAnimationFrame(countdownRaf);
+  countdownRaf = null;
+}
+
 function renderRoomList(rooms) {
   const tbody = document.getElementById("room-table-body");
   tbody.innerHTML = "";
@@ -174,6 +419,8 @@ function joinRoom(room) {
 
   lobbyClient?.disconnect(); // classroom mode never connects to the lobby in the first place
   classroomLevelSent = false;
+  classroomSkinSent = false;
+  pendingMatch = null;
 
   const isClassroom = gameplayMode === "classroom";
   document.getElementById("level-row").style.display = isClassroom ? "none" : "";
@@ -184,21 +431,64 @@ function joinRoom(room) {
   roomClient.onOpen = () => {
     roomClient.join(name);
     refreshLevelUI(null); // reset from whatever the previous room's level was
-    showView("pregame");
+    if (isClassroom) {
+      showView("waiting");
+      startLeaderboardPolling(roomNum);
+    } else {
+      showView("pregame");
+    }
     setStatus(`Joined ${room.name}.`, false);
   };
-  roomClient.onClose = () => setStatus("Disconnected from room.", true);
-  roomClient.onPlayersChanged = renderPlayerTable;
+  roomClient.onClose = () => {
+    stopLeaderboardPolling();
+    setStatus("Disconnected from room.", true);
+  };
+  roomClient.onPlayersChanged = () => {
+    renderPlayerTable();
+    checkMatchmaking();
+  };
   roomClient.onLevelChanged = refreshLevelUI;
+  roomClient.onMatchFormed = handleMatchFormed;
   roomClient.onChat = (playerId, message) => appendChat(roomClient.players.get(playerId)?.name ?? "?", message);
-  roomClient.onCountdown = () => setStatus("Game starting soon...", false);
+  roomClient.onCountdown = () => {
+    setStatus("Game starting soon...", false);
+    if (isClassroom) {
+      showCountdown(SERVER_START_GAME_DELAY_MS, myTeammateNameForCountdown);
+      myTeammateNameForCountdown = null; // one-shot — cleared so a later generic countdown doesn't reuse a stale name
+    }
+  };
+  roomClient.onLeader = () => checkMatchmaking(); // leadership can hand off mid-session — new leader picks up orchestration
   roomClient.onGameStart = startNetworkedMatch;
   roomClient.onGameFinished = () => {
-    setStatus("Game finished — back to pre-game.", false);
-    showView("pregame");
+    setStatus(isClassroom ? "Game finished — back to the waiting room." : "Game finished — back to pre-game.", false);
+    hideCountdown();
+    pendingMatch = null;
+    if (isClassroom) {
+      showView("waiting");
+      checkMatchmaking();
+    } else {
+      showView("pregame");
+    }
   };
   wireRoomToGraphPlane(roomClient);
   roomClient.connect();
+}
+
+// A matched player's own client is the only one that can ready itself up
+// (SET_READY has no leader-bypass, unlike SET_TEAM/ADD_SOLDIER/
+// REMOVE_SOLDIER) — every client gets this broadcast, but only the 4 named
+// players act on it. The actual countdown display is triggered separately
+// by the server's own START_COUNTDOWN once ready — this just records who
+// my teammate is for that upcoming overlay to show.
+function handleMatchFormed({ team1, team2 }) {
+  const allIds = [...team1, ...team2];
+  if (!allIds.includes(roomClient.localPlayerId)) return;
+
+  roomClient.setReady(roomClient.localPlayerId, true);
+
+  const myTeam = team1.includes(roomClient.localPlayerId) ? team1 : team2;
+  const teammateId = myTeam.find((id) => id !== roomClient.localPlayerId);
+  myTeammateNameForCountdown = roomClient.players.get(teammateId)?.name ?? "?";
 }
 
 // The server (unmodified) starts the game once every currently-connected
@@ -233,12 +523,35 @@ function renderPlayerTable() {
   const localPlayer = roomClient.players.get(roomClient.localPlayerId);
   if (!localPlayer) return;
 
-  // Classroom mode locks the level rather than leaving it to manual
-  // selection — sent once localPlayerId becomes available (it isn't yet at
-  // the moment we join; ADD_PLAYER's echo assigns it asynchronously).
-  if (gameplayMode === "classroom" && !classroomLevelSent) {
-    classroomLevelSent = true;
-    roomClient.setLevel(roomClient.localPlayerId, CLASSROOM_LEVEL_ID);
+  if (gameplayMode === "classroom") {
+    // Classroom mode locks the level and reports the chosen skin once
+    // localPlayerId becomes available (it isn't yet at the moment we
+    // join; ADD_PLAYER's echo assigns it asynchronously). Team/soldier
+    // count/ready are entirely auto-managed by checkMatchmaking()/
+    // handleMatchFormed, not this manual public-mode flow — in
+    // particular, skip the team-balance auto-unready check below, since
+    // matchmaking already guarantees a balanced 2v2 before ever
+    // triggering self-ready, and checking it here too risks a false
+    // positive from the SET_TEAM/SET_READY echoes arriving out of order.
+    if (!classroomLevelSent) {
+      classroomLevelSent = true;
+      roomClient.setLevel(roomClient.localPlayerId, CLASSROOM_LEVEL_ID);
+    }
+    if (!classroomSkinSent) {
+      classroomSkinSent = true;
+      reportCurrentSkin();
+    }
+
+    // The server's checkAllReady() requires EVERY player currently in the
+    // room to be ready, not just the 4 actually playing — so a bystander
+    // sitting at 0 soldiers (see checkMatchmaking) has to self-ready too,
+    // or nobody else's match can ever start. Harmless: 0 soldiers means
+    // this player contributes nothing to the match regardless. Only the
+    // player's own client can do this (SET_READY has no leader-bypass).
+    if (localPlayer.numSoldiers === 0 && !localPlayer.ready) {
+      roomClient.setReady(roomClient.localPlayerId, true);
+    }
+    return;
   }
 
   if (localPlayer.ready && !bothTeamsHavePlayers()) {
@@ -300,6 +613,21 @@ const MODE_LABELS = { [NORMAL_FUNC]: "y =", [FST_ODE]: "y' =", [SND_ODE]: "y'' =
 const ANGLE_STEP = (5 * Math.PI) / 180;
 
 function startNetworkedMatch() {
+  hideCountdown();
+
+  // Classroom rooms can hold more than the 4 currently matched (extra
+  // waiting players sit at 0 soldiers, see checkMatchmaking/
+  // normalizeSoldierCounts) — gameState is room-wide, so START_GAME fires
+  // for them too even though they're not part of this round. Keep them on
+  // the waiting screen instead of dragging them into a match they have no
+  // soldiers in.
+  const localPlayer = roomClient.players.get(roomClient.localPlayerId);
+  if (gameplayMode === "classroom" && (!localPlayer || localPlayer.numSoldiers < 1)) {
+    showView("waiting");
+    setStatus("A match is in progress — you'll join the next one.", false);
+    return;
+  }
+
   graphPlane.loadNetworkedMatch(roomClient);
   document.getElementById("func-label").textContent = MODE_LABELS[roomClient.gameMode];
   document.getElementById("angle-controls").classList.toggle("visible", roomClient.gameMode === SND_ODE);
@@ -370,8 +698,35 @@ document.getElementById("fire").addEventListener("click", () => {
 // Wired once here rather than per-match — loadNetworkedMatch resets the
 // state these callbacks read, but the callbacks themselves don't change.
 graphPlane.onReadyForNextTurn = () => {
-  if (roomClient.checkGameFinished()) roomClient.reportGameFinished();
-  else roomClient.readyNextTurn();
+  if (roomClient.checkGameFinished()) {
+    // Snapshot the winner right here, before GAME_FINISHED resets
+    // anything — that message carries no winner info of its own (see
+    // getWinningTeam's comment in roomClient.js).
+    if (gameplayMode === "classroom") {
+      const winningTeam = roomClient.getWinningTeam();
+      const localPlayer = roomClient.players.get(roomClient.localPlayerId);
+      if (winningTeam !== null && localPlayer?.team === winningTeam) {
+        roomClient.reportStat(roomClient.localPlayerId, StatEvent.WIN);
+      }
+    }
+    roomClient.reportGameFinished();
+  } else {
+    roomClient.readyNextTurn();
+  }
+};
+
+// Each player reports only events about themselves (their own death, a
+// kill they personally scored) — never on someone else's behalf, so
+// there's nothing to dedupe (see stats.js).
+graphPlane.onSoldierDied = (victimSoldier, shooterSoldier) => {
+  if (gameplayMode !== "classroom" || !roomClient) return;
+
+  if (victimSoldier.ownerId === roomClient.localPlayerId) {
+    roomClient.reportStat(roomClient.localPlayerId, StatEvent.DEATH);
+  }
+  if (shooterSoldier?.ownerId === roomClient.localPlayerId) {
+    roomClient.reportStat(roomClient.localPlayerId, StatEvent.KILL);
+  }
 };
 
 function wireRoomToGraphPlane(client) {
