@@ -83,6 +83,19 @@
         color: #aaa;
         align-self: flex-start;
       }
+      .tab-button {
+        background: none;
+        border: 1px solid #444;
+        color: #aaa;
+      }
+      .tab-button.active {
+        background: #2a3f66;
+        border-color: #3468c0;
+        color: #e6e6e6;
+      }
+      #teacher-game-status {
+        min-height: 1.2em;
+      }
       #countdown-overlay {
         display: none;
         position: fixed;
@@ -116,6 +129,17 @@
       <div class="row">
         <button id="landing-public">Join a Public Lobby</button>
         <button id="landing-classroom">Join a Classroom</button>
+        <button id="landing-teacher">Lead a Classroom</button>
+      </div>
+    </section>
+
+    <section id="teacher-password-view">
+      <button class="back-button" id="back-from-teacher-password">&larr; Back</button>
+      <h2 style="margin: 0; font-size: 1rem">Teacher sign-in</h2>
+      <div class="row">
+        <label for="teacher-password-input">Password</label>
+        <input id="teacher-password-input" type="password" />
+        <button id="teacher-password-submit">Continue</button>
       </div>
     </section>
 
@@ -216,6 +240,35 @@
         </thead>
         <tbody id="leaderboard-table-body"></tbody>
       </table>
+    </section>
+
+    <section id="teacher-view">
+      <button class="back-button" id="back-from-teacher">&larr; Back</button>
+      <h2 style="margin: 0; font-size: 1rem" id="teacher-classroom-label"></h2>
+      <div class="row">
+        <button id="teacher-tab-game" class="tab-button active">Live Game</button>
+        <button id="teacher-tab-leaderboard" class="tab-button">Leaderboard</button>
+      </div>
+
+      <div id="teacher-game-panel">
+        <div id="teacher-game-status">Waiting for the next game to start...</div>
+        <canvas id="teacher-plane" width="770" height="450"></canvas>
+      </div>
+
+      <div id="teacher-leaderboard-panel" style="display: none">
+        <table id="teacher-leaderboard-table">
+          <thead>
+            <tr>
+              <th>Player</th>
+              <th>Kills</th>
+              <th>Deaths</th>
+              <th>K/D</th>
+              <th>Wins</th>
+            </tr>
+          </thead>
+          <tbody id="teacher-leaderboard-table-body"></tbody>
+        </table>
+      </div>
     </section>
 
     <section id="game-view">

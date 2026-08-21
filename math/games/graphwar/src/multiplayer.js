@@ -30,11 +30,13 @@ const CLASSROOM_LEVEL_ID = 0;
 
 const views = {
   landing: document.getElementById("landing-view"),
+  teacherPassword: document.getElementById("teacher-password-view"),
   classroomSelect: document.getElementById("classroom-select-view"),
   connect: document.getElementById("connect-view"),
   lobby: document.getElementById("lobby-view"),
   pregame: document.getElementById("pregame-view"),
   waiting: document.getElementById("waiting-view"),
+  teacherView: document.getElementById("teacher-view"),
   game: document.getElementById("game-view"),
 };
 
@@ -51,8 +53,10 @@ function setStatus(message, isError) {
 
 let lobbyClient = null;
 let roomClient = null;
+let teacherRoomClient = null;
 let bridgeUrl = "";
 let gameplayMode = "public"; // "public" | "classroom" — picked on the landing screen
+let leadMode = false; // true once "Lead a Classroom" + the password have been accepted
 let classroomLevelSent = false;
 let classroomSkinSent = false;
 let selectedClassroom = null;
@@ -62,9 +66,20 @@ let myTeammateNameForCountdown = null; // set by handleMatchFormed, consumed onc
 let countdownRaf = null;
 let leaderboardTimer = null;
 
+// Hardcoded for now — no teacher accounts exist yet (see classrooms.js's
+// own note on that). One shared password for every classroom.
+const TEACHER_PASSWORD = "PUMA";
+
 // ---- Back buttons ----
 
-document.getElementById("back-from-classroom-select").addEventListener("click", () => showView("landing"));
+document.getElementById("back-from-classroom-select").addEventListener("click", () => {
+  showView(leadMode ? "teacherPassword" : "landing");
+});
+
+document.getElementById("back-from-teacher-password").addEventListener("click", () => {
+  leadMode = false;
+  showView("landing");
+});
 
 document.getElementById("back-from-connect").addEventListener("click", () => {
   showView(gameplayMode === "classroom" ? "classroomSelect" : "landing");
@@ -87,6 +102,12 @@ document.getElementById("back-from-waiting").addEventListener("click", () => {
   showView("classroomSelect");
 });
 
+document.getElementById("back-from-teacher").addEventListener("click", () => {
+  stopLeaderboardPolling();
+  disconnectTeacherSpectator();
+  showView("classroomSelect");
+});
+
 // ---- Landing view ----
 
 document.getElementById("landing-public").addEventListener("click", () => {
@@ -96,12 +117,38 @@ document.getElementById("landing-public").addEventListener("click", () => {
 
 document.getElementById("landing-classroom").addEventListener("click", () => {
   gameplayMode = "classroom";
+  leadMode = false;
   showView("classroomSelect");
+});
+
+document.getElementById("landing-teacher").addEventListener("click", () => {
+  document.getElementById("teacher-password-input").value = "";
+  showView("teacherPassword");
+});
+
+// ---- Teacher password ----
+
+function submitTeacherPassword() {
+  const input = document.getElementById("teacher-password-input");
+  if (input.value !== TEACHER_PASSWORD) {
+    setStatus("Incorrect password.", true);
+    return;
+  }
+  leadMode = true;
+  setStatus("", false);
+  showView("classroomSelect");
+}
+
+document.getElementById("teacher-password-submit").addEventListener("click", submitTeacherPassword);
+document.getElementById("teacher-password-input").addEventListener("keydown", (event) => {
+  if (event.key === "Enter") submitTeacherPassword();
 });
 
 // ---- Classroom selection ----
 // Hardcoded list (see classrooms.js) — just one entry today, but built as a
-// list so adding more later is a one-line addition, not a UI rewrite.
+// list so adding more later is a one-line addition, not a UI rewrite. This
+// screen is shared by both the student "Join a Classroom" flow and the
+// teacher "Lead a Classroom" flow (branching on leadMode).
 
 const classroomButtonsEl = document.getElementById("classroom-buttons");
 for (const classroom of CLASSROOMS) {
@@ -109,7 +156,11 @@ for (const classroom of CLASSROOMS) {
   button.textContent = classroom.label;
   button.addEventListener("click", () => {
     selectedClassroom = classroom;
-    showView("connect");
+    if (leadMode) {
+      connectTeacherSpectator(classroom);
+    } else {
+      showView("connect");
+    }
   });
   classroomButtonsEl.appendChild(button);
 }
@@ -117,9 +168,12 @@ for (const classroom of CLASSROOMS) {
 const graphPlane = new GraphPlane(document.getElementById("plane"));
 graphPlane.start();
 
+const teacherGraphPlane = new GraphPlane(document.getElementById("teacher-plane"));
+teacherGraphPlane.start();
+
 // Console/devtools debugging aid — window.__debug.getRoomClient().players,
 // window.__debug.graphPlane.currentShooterSoldier, etc.
-window.__debug = { graphPlane, getRoomClient: () => roomClient };
+window.__debug = { graphPlane, getRoomClient: () => roomClient, teacherGraphPlane, getTeacherRoomClient: () => teacherRoomClient };
 
 // Default to whatever host the page itself was loaded from, not a hardcoded
 // "localhost" — a LAN peer loading this page via the host's LAN IP needs the
@@ -232,8 +286,8 @@ function statsUrl(roomNum) {
   return `${httpBase}/stats/${roomNum}`;
 }
 
-function renderLeaderboard(data) {
-  const tbody = document.getElementById("leaderboard-table-body");
+function renderLeaderboard(data, tbodyId) {
+  const tbody = document.getElementById(tbodyId);
   tbody.innerHTML = "";
 
   const rows = Object.entries(data).sort(([, a], [, b]) => b.wins - a.wins || b.kills - a.kills);
@@ -245,13 +299,17 @@ function renderLeaderboard(data) {
   }
 }
 
-function startLeaderboardPolling(roomNum) {
+// Shared by the student waiting-room leaderboard and the teacher view's —
+// only one is ever polling at a time in a given browser tab (a session is
+// always exactly one of public/classroom-student/classroom-teacher), so a
+// single timer variable is fine.
+function startLeaderboardPolling(roomNum, tbodyId) {
   stopLeaderboardPolling();
 
   const poll = async () => {
     try {
       const response = await fetch(statsUrl(roomNum));
-      renderLeaderboard(await response.json());
+      renderLeaderboard(await response.json(), tbodyId);
     } catch {
       // Bridge unreachable this tick — leaderboard just doesn't update, not fatal.
     }
@@ -265,6 +323,103 @@ function stopLeaderboardPolling() {
   clearInterval(leaderboardTimer);
   leaderboardTimer = null;
 }
+
+// ---- Teacher spectator view ----
+// A passive RoomClient that never calls .join() — confirmed the server
+// broadcasts every message to every connected socket regardless of
+// registration, so this renders the live match exactly like a real
+// player's client would, just with no fire/ready/team controls, into its
+// own GraphPlane/canvas (teacherGraphPlane/#teacher-plane) rather than the
+// one real players use.
+//
+// One real risk: the server assigns room "leader" by connection order
+// (oldest still-connected socket), NOT by who's actually a player — so if
+// this spectator connects before any real student, it becomes leader, and
+// the leader-driven auto-matchmaking (checkMatchmaking) would then
+// silently never run for anyone: only the actual leader connection can
+// use the SET_TEAM/ADD_SOLDIER/REMOVE_SOLDIER bypass, but a spectator has
+// no player of its own to send the match-formed chat broadcast as
+// (CHAT_MSG requires owning the playerId you send it for — no
+// leader-bypass there). So if this connection ever becomes leader, it
+// immediately disconnects and reconnects instead — a fresh connection
+// joins the back of the server's connection list, handing leadership to
+// whichever real player is still connected. Retries automatically if the
+// teacher is still the only one connected.
+let teacherConnectionAttempt = 0;
+
+function connectTeacherSpectator(classroom) {
+  disconnectTeacherSpectator();
+
+  bridgeUrl = document.getElementById("bridge-url").value.trim(); // never visited connect-view, so capture it here instead
+  document.getElementById("teacher-classroom-label").textContent = classroom.label;
+  document.getElementById("teacher-game-status").textContent = "Waiting for the next game to start...";
+  // GraphPlane's constructor always sets up a fake local sandbox match —
+  // hide the canvas until a real one actually starts, so that doesn't
+  // show through next to the "waiting" text.
+  document.getElementById("teacher-plane").style.display = "none";
+  showTeacherTab("game");
+
+  teacherRoomClient = new RoomClient(bridgeUrl, classroom.roomNum);
+
+  teacherRoomClient.onOpen = () => {
+    showView("teacherView");
+    startLeaderboardPolling(classroom.roomNum, "teacher-leaderboard-table-body");
+    setStatus(`Watching ${classroom.label}.`, false);
+  };
+  teacherRoomClient.onClose = () => setStatus("Disconnected from classroom.", true);
+  teacherRoomClient.onLeader = () => {
+    if (teacherRoomClient.localPlayerId === null) {
+      disconnectTeacherSpectator(); // bumps teacherConnectionAttempt — capture it as this reconnect's expected generation
+      const expectedGeneration = teacherConnectionAttempt;
+      setTimeout(() => {
+        // Only proceed if nothing else (a manual "back", or another
+        // reconnect) has disconnected/reconnected since this was scheduled.
+        if (leadMode && teacherConnectionAttempt === expectedGeneration) connectTeacherSpectator(classroom);
+      }, 2000);
+    }
+  };
+  teacherRoomClient.onGameStart = () => {
+    teacherGraphPlane.loadNetworkedMatch(teacherRoomClient);
+    document.getElementById("teacher-game-status").textContent = "";
+    document.getElementById("teacher-plane").style.display = "";
+  };
+  teacherRoomClient.onGameFinished = () => {
+    document.getElementById("teacher-game-status").textContent = "Waiting for the next game to start...";
+    document.getElementById("teacher-plane").style.display = "none";
+  };
+  teacherRoomClient.onFire = (shooterPlayer, shooterSoldier, functionString) => {
+    const inverted = shooterPlayer.team === TEAM2;
+    const result = teacherGraphPlane.playShot(
+      shooterSoldier,
+      functionString,
+      teacherRoomClient.gameMode,
+      shooterSoldier.angle,
+      inverted,
+    );
+    if (!result.ok) console.error("teacher spectator playShot failed:", result.error);
+  };
+  teacherRoomClient.onTurnAdvance = (player) => {
+    teacherGraphPlane.advanceTurn(player?.getCurrentTurnSoldier() ?? null);
+  };
+
+  teacherRoomClient.connect();
+}
+
+function disconnectTeacherSpectator() {
+  teacherConnectionAttempt++; // invalidates any reconnect scheduled by a previous attempt
+  teacherRoomClient?.disconnect();
+  teacherRoomClient = null;
+}
+
+function showTeacherTab(tab) {
+  document.getElementById("teacher-tab-game").classList.toggle("active", tab === "game");
+  document.getElementById("teacher-tab-leaderboard").classList.toggle("active", tab === "leaderboard");
+  document.getElementById("teacher-game-panel").style.display = tab === "game" ? "" : "none";
+  document.getElementById("teacher-leaderboard-panel").style.display = tab === "leaderboard" ? "" : "none";
+}
+
+document.getElementById("teacher-tab-game").addEventListener("click", () => showTeacherTab("game"));
+document.getElementById("teacher-tab-leaderboard").addEventListener("click", () => showTeacherTab("leaderboard"));
 
 // ---- Auto-matchmaking (classroom waiting room, leader-orchestrated) ----
 // Runs only on whichever client currently holds room leadership — the
@@ -433,7 +588,7 @@ function joinRoom(room) {
     refreshLevelUI(null); // reset from whatever the previous room's level was
     if (isClassroom) {
       showView("waiting");
-      startLeaderboardPolling(roomNum);
+      startLeaderboardPolling(roomNum, "leaderboard-table-body");
     } else {
       showView("pregame");
     }
