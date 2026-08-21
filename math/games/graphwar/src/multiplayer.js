@@ -14,6 +14,7 @@ import { RoomClient } from "./roomClient.js";
 import { GraphPlane } from "./graphPlane.js";
 import { NORMAL_FUNC, FST_ODE, SND_ODE, TEAM1, TEAM2, PUBLIC_ROOM_PORT } from "./constants.js";
 import { LEVELS, getLevel } from "./levels.js";
+import { CLASSROOMS } from "./classrooms.js";
 
 // Hardcoded for now — a teacher-configurable classroom is future work (per-
 // classroom codes, room reservations, teacher accounts, etc.), out of scope
@@ -26,6 +27,7 @@ import { MalformedFunction } from "./tokens.js";
 
 const views = {
   landing: document.getElementById("landing-view"),
+  classroomSelect: document.getElementById("classroom-select-view"),
   connect: document.getElementById("connect-view"),
   lobby: document.getElementById("lobby-view"),
   pregame: document.getElementById("pregame-view"),
@@ -48,6 +50,7 @@ let roomClient = null;
 let bridgeUrl = "";
 let gameplayMode = "public"; // "public" | "classroom" — picked on the landing screen
 let classroomLevelSent = false;
+let selectedClassroom = null;
 
 // ---- Landing view ----
 
@@ -58,8 +61,23 @@ document.getElementById("landing-public").addEventListener("click", () => {
 
 document.getElementById("landing-classroom").addEventListener("click", () => {
   gameplayMode = "classroom";
-  showView("connect");
+  showView("classroomSelect");
 });
+
+// ---- Classroom selection ----
+// Hardcoded list (see classrooms.js) — just one entry today, but built as a
+// list so adding more later is a one-line addition, not a UI rewrite.
+
+const classroomButtonsEl = document.getElementById("classroom-buttons");
+for (const classroom of CLASSROOMS) {
+  const button = document.createElement("button");
+  button.textContent = classroom.label;
+  button.addEventListener("click", () => {
+    selectedClassroom = classroom;
+    showView("connect");
+  });
+  classroomButtonsEl.appendChild(button);
+}
 
 const graphPlane = new GraphPlane(document.getElementById("plane"));
 graphPlane.start();
@@ -84,6 +102,14 @@ if (location.protocol !== "https:") {
 document.getElementById("connect-button").addEventListener("click", () => {
   bridgeUrl = document.getElementById("bridge-url").value.trim();
   const name = document.getElementById("name-input").value.trim() || "Player";
+
+  // Classroom mode skips the public lobby entirely — everyone who picked
+  // the same classroom lands directly in that classroom's fixed room (see
+  // classrooms.js), rather than browsing/picking from the shared room list.
+  if (gameplayMode === "classroom") {
+    joinRoom({ name: selectedClassroom.label, port: PUBLIC_ROOM_PORT + selectedClassroom.roomNum });
+    return;
+  }
 
   lobbyClient = new LobbyClient(bridgeUrl);
   lobbyClient.onOpen = () => {
@@ -146,7 +172,7 @@ function joinRoom(room) {
   const roomNum = room.port - PUBLIC_ROOM_PORT;
   const name = document.getElementById("name-input").value.trim() || "Player";
 
-  lobbyClient.disconnect();
+  lobbyClient?.disconnect(); // classroom mode never connects to the lobby in the first place
   classroomLevelSent = false;
 
   const isClassroom = gameplayMode === "classroom";
