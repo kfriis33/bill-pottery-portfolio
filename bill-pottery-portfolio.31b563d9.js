@@ -25196,7 +25196,7 @@ const App = ()=>{
                                 }, undefined),
                                 /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("a", {
                                     className: "nav-item",
-                                    href: "/math/games",
+                                    href: "/math/games/graphwar",
                                     children: "Games"
                                 }, void 0, false, {
                                     fileName: "src/App.js",
