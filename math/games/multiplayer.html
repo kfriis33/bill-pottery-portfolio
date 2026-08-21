@@ -82,7 +82,14 @@
   <body>
     <h1 style="margin: 0; font-size: 1.1rem">Graphwar web prototype — Multiplayer</h1>
 
-    <section id="connect-view" class="visible">
+    <section id="landing-view" class="visible">
+      <div class="row">
+        <button id="landing-public">Join a Public Lobby</button>
+        <button id="landing-classroom">Join a Classroom</button>
+      </div>
+    </section>
+
+    <section id="connect-view">
       <div class="row">
         <label for="bridge-url">Bridge URL</label>
         <input id="bridge-url" type="text" value="wss://ws.williamkuenne.art" />
@@ -128,11 +135,15 @@
         <button id="remove-soldier">- Soldier</button>
         <label><input id="ready-checkbox" type="checkbox" /> Ready</label>
       </div>
-      <div class="row">
+      <div class="row" id="level-row">
         <label for="level-select">Level</label>
         <select id="level-select">
           <option value="">Freeplay (no restrictions)</option>
         </select>
+      </div>
+      <div class="row" id="classroom-level-row" style="display: none">
+        <label>Classroom rules</label>
+        <span id="classroom-level-label"></span>
       </div>
       <div id="chat-log"></div>
       <div class="row">

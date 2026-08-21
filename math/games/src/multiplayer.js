@@ -12,13 +12,20 @@
 import { LobbyClient } from "./lobbyClient.js";
 import { RoomClient } from "./roomClient.js";
 import { GraphPlane } from "./graphPlane.js";
-import { NORMAL_FUNC, FST_ODE, SND_ODE, TEAM2, PUBLIC_ROOM_PORT } from "./constants.js";
-import { LEVELS } from "./levels.js";
+import { NORMAL_FUNC, FST_ODE, SND_ODE, TEAM1, TEAM2, PUBLIC_ROOM_PORT } from "./constants.js";
+import { LEVELS, getLevel } from "./levels.js";
+
+// Hardcoded for now — a teacher-configurable classroom is future work (per-
+// classroom codes, room reservations, teacher accounts, etc.), out of scope
+// today. "Classroom" mode just locks every room a player joins to this one
+// ruleset instead of leaving it open to manual selection like public mode.
+const CLASSROOM_LEVEL_ID = 0;
 import { PolishNotationFunction } from "./polishNotationFunction.js";
 import { isLinear } from "./functionKind.js";
 import { MalformedFunction } from "./tokens.js";
 
 const views = {
+  landing: document.getElementById("landing-view"),
   connect: document.getElementById("connect-view"),
   lobby: document.getElementById("lobby-view"),
   pregame: document.getElementById("pregame-view"),
@@ -39,6 +46,20 @@ function setStatus(message, isError) {
 let lobbyClient = null;
 let roomClient = null;
 let bridgeUrl = "";
+let gameplayMode = "public"; // "public" | "classroom" — picked on the landing screen
+let classroomLevelSent = false;
+
+// ---- Landing view ----
+
+document.getElementById("landing-public").addEventListener("click", () => {
+  gameplayMode = "public";
+  showView("connect");
+});
+
+document.getElementById("landing-classroom").addEventListener("click", () => {
+  gameplayMode = "classroom";
+  showView("connect");
+});
 
 const graphPlane = new GraphPlane(document.getElementById("plane"));
 graphPlane.start();
@@ -126,6 +147,12 @@ function joinRoom(room) {
   const name = document.getElementById("name-input").value.trim() || "Player";
 
   lobbyClient.disconnect();
+  classroomLevelSent = false;
+
+  const isClassroom = gameplayMode === "classroom";
+  document.getElementById("level-row").style.display = isClassroom ? "none" : "";
+  document.getElementById("classroom-level-row").style.display = isClassroom ? "" : "none";
+  if (isClassroom) document.getElementById("classroom-level-label").textContent = getLevel(CLASSROOM_LEVEL_ID).label;
 
   roomClient = new RoomClient(bridgeUrl, roomNum);
   roomClient.onOpen = () => {
@@ -148,6 +175,23 @@ function joinRoom(room) {
   roomClient.connect();
 }
 
+// The server (unmodified) starts the game once every currently-connected
+// player is ready, with no team-balance check of its own — so an empty
+// team is prevented client-side instead: this client refuses to let the
+// local player ready up (and un-readies them if teams become imbalanced
+// after the fact, e.g. someone switches sides) while either team has zero
+// players. As long as everyone's using this client, the server's own
+// all-ready check can then never fire while a team is empty.
+function bothTeamsHavePlayers() {
+  let team1 = false;
+  let team2 = false;
+  for (const player of roomClient.players.values()) {
+    if (player.team === TEAM1) team1 = true;
+    else if (player.team === TEAM2) team2 = true;
+  }
+  return team1 && team2;
+}
+
 function renderPlayerTable() {
   const tbody = document.getElementById("player-table-body");
   tbody.innerHTML = "";
@@ -161,7 +205,22 @@ function renderPlayerTable() {
   }
 
   const localPlayer = roomClient.players.get(roomClient.localPlayerId);
-  if (localPlayer) document.getElementById("ready-checkbox").checked = localPlayer.ready;
+  if (!localPlayer) return;
+
+  // Classroom mode locks the level rather than leaving it to manual
+  // selection — sent once localPlayerId becomes available (it isn't yet at
+  // the moment we join; ADD_PLAYER's echo assigns it asynchronously).
+  if (gameplayMode === "classroom" && !classroomLevelSent) {
+    classroomLevelSent = true;
+    roomClient.setLevel(roomClient.localPlayerId, CLASSROOM_LEVEL_ID);
+  }
+
+  if (localPlayer.ready && !bothTeamsHavePlayers()) {
+    roomClient.setReady(roomClient.localPlayerId, false);
+    setStatus("Need at least 1 player on each team — unreadied.", true);
+  }
+
+  document.getElementById("ready-checkbox").checked = localPlayer.ready && bothTeamsHavePlayers();
 }
 
 function appendChat(name, message) {
@@ -185,7 +244,15 @@ document.getElementById("remove-soldier").addEventListener("click", () => {
 });
 
 document.getElementById("ready-checkbox").addEventListener("change", (event) => {
-  roomClient?.setReady(roomClient.localPlayerId, event.target.checked);
+  if (!roomClient) return;
+
+  if (event.target.checked && !bothTeamsHavePlayers()) {
+    event.target.checked = false;
+    setStatus("Need at least 1 player on each team before you can ready up.", true);
+    return;
+  }
+
+  roomClient.setReady(roomClient.localPlayerId, event.target.checked);
 });
 
 document.getElementById("chat-send").addEventListener("click", sendChat);
