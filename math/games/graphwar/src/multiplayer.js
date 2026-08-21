@@ -545,11 +545,23 @@ function renderPlayerTable() {
     // The server's checkAllReady() requires EVERY player currently in the
     // room to be ready, not just the 4 actually playing — so a bystander
     // sitting at 0 soldiers (see checkMatchmaking) has to self-ready too,
-    // or nobody else's match can ever start. Harmless: 0 soldiers means
-    // this player contributes nothing to the match regardless. Only the
-    // player's own client can do this (SET_READY has no leader-bypass).
-    if (localPlayer.numSoldiers === 0 && !localPlayer.ready) {
+    // or nobody else's match can ever start. Only the player's own client
+    // can do this (SET_READY has no leader-bypass).
+    //
+    // Gated on someone ELSE actually having soldiers first: without that
+    // check, a room with fewer than 4 people (nobody matched yet) would
+    // have every bystander self-ready, trivially satisfying
+    // checkAllReady() with nobody actually playing — the server would
+    // start a real, empty game (gameState -> GAME) that can then never
+    // finish, since nothing with zero soldiers in play ever fires the
+    // game-over check, permanently blocking matchmaking for everyone who
+    // joins afterward too.
+    const someoneHasSoldiers = [...roomClient.players.values()].some((p) => p.numSoldiers > 0);
+
+    if (localPlayer.numSoldiers === 0 && someoneHasSoldiers && !localPlayer.ready) {
       roomClient.setReady(roomClient.localPlayerId, true);
+    } else if (localPlayer.numSoldiers === 0 && !someoneHasSoldiers && localPlayer.ready) {
+      roomClient.setReady(roomClient.localPlayerId, false);
     }
     return;
   }
